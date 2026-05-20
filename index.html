@@ -120,10 +120,6 @@
   <!-- Three.js r128 — fichier local (pas de dépendance CDN) -->
   <script defer src="three.min.js"></script>
 
-  <!-- ── Spline viewer (web component) — chargé en module asynchrone, non-bloquant ── -->
-  <!-- Utilisé uniquement sur desktop ; sur mobile on injecte un fond CSS à la place    -->
-  <script type="module" src="https://unpkg.com/@splinetool/viewer@1.12.92/build/spline-viewer.js"></script>
-
   <style>
     /* ── @property — rend --accent / --accent2 interpolables comme de vraies couleurs ── */
     @property --accent  { syntax: '<color>'; inherits: true; initial-value: #e8b94a; }
@@ -653,6 +649,8 @@
       align-items: center;
       /* Swipe horizontal capté par JS, scroll vertical géré par le navigateur */
       touch-action: pan-y;
+      /* Garantit que la scène elle-même affiche pointer si le ray-cast 3D rate une carte */
+      cursor: pointer;
     }
     .carousel-track {
       position: relative;
@@ -741,7 +739,7 @@
     }
 
     /* ── 5 ÉTATS 3D — JS surcharge opacity en inline style ── */
-    .carousel-item.c-active    { z-index: 5; cursor: default;  }
+    .carousel-item.c-active    { z-index: 5; cursor: pointer;  }
     .carousel-item.c-left      { z-index: 4; cursor: pointer;  }
     .carousel-item.c-right     { z-index: 4; cursor: pointer;  }
     .carousel-item.c-far-left  { z-index: 3; cursor: pointer;  }
@@ -752,7 +750,14 @@
     .carousel-item.c-left *,
     .carousel-item.c-right *,
     .carousel-item.c-far-left *,
-    .carousel-item.c-far-right * { cursor: pointer !important; }
+    .carousel-item.c-far-right *,
+    .carousel-item.c-active *   { cursor: pointer !important; }
+    /* Filet de sécurité : couvre tous les carousel-item quel que soit leur état
+       (évite le curseur texte/défaut pendant les transitions de carousel)       */
+    .carousel-scene .carousel-item,
+    .carousel-scene .carousel-item * { cursor: pointer !important; }
+    /* Nav : curseur main stable sur tous les éléments de la barre */
+    nav, nav *, nav a, nav button, nav li { cursor: pointer !important; }
 
     /* ── CAROUSEL NAVIGATION ── */
     .carousel-nav {
@@ -1595,7 +1600,7 @@
     }
 
     /* Tool pills : hover interactif */
-    .tool-pill { cursor: default; transition: background 0.22s, border-color 0.22s, color 0.22s; }
+    .tool-pill { cursor: pointer; transition: background 0.22s, border-color 0.22s, color 0.22s; }
     .tool-pill:hover {
       background: rgba(91,155,213,0.15);
       border-color: rgba(91,155,213,0.45);
@@ -2441,39 +2446,77 @@
       width: 100%; height: 100%;
       overflow: hidden;
       z-index: 9999;
-      background: #000;
+      background: transparent; /* le #gate-peek montre la page hero derrière */
     }
-    #spline-container {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
+    /* ── Fond : première section du portfolio, flouté et assombri ── */
+    #gate-peek {
+      position: absolute; inset: 0;
       z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
     }
-    /* Masque le badge "Built with Spline" (shadow DOM, inaccessible en CSS direct) */
-    #spline-container::after {
-      content: '';
-      position: absolute;
-      bottom: 0; right: 0;
-      width: 240px; height: 70px;
-      background: #000;
-      z-index: 10;
+    #gate-peek-inner {
+      position: absolute; inset: 0;
+      transform-origin: top left;
+      pointer-events: none;
+      filter: blur(2px) brightness(0.45) saturate(0.7);
     }
-    #landing-gate .overlay {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.1);
+    /* Voile sombre par-dessus le peek pour ne pas distraire */
+    #gate-veil {
+      position: absolute; inset: 0;
       z-index: 1;
+      background: rgba(5,7,18,0.62);
       pointer-events: none;
     }
+    /* ── Halo lumineux — grand gradient blanc/bleu avec blur ── */
+    #slice-halo {
+      position: absolute;
+      left: 50%; top: 48%;
+      transform: translate(-50%, -50%);
+      width: 85%; height: 75%;
+      background: radial-gradient(ellipse at center,
+        rgba(160,170,255,0.42) 0%,
+        rgba(110,130,255,0.20) 38%,
+        rgba(80, 95,210,0.07) 62%,
+        transparent 100%
+      );
+      filter: blur(90px);
+      pointer-events: none;
+      z-index: 1;
+    }
+    #slice-halo::after {
+      content: '';
+      position: absolute;
+      left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
+      width: 55%; height: 48%;
+      background: radial-gradient(ellipse at center,
+        rgba(255,255,255,0.24) 0%,
+        rgba(220,225,255,0.10) 50%,
+        transparent 100%
+      );
+      filter: blur(55px);
+    }
+    /* ── Conteneur du renderer Three.js ── */
+    #slice-grid {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      pointer-events: none; /* le canvas Three.js hérite — clics passent au gate */
+      overflow: hidden;
+    }
+    /* ── Mode éco : masquer les effets visuels ── */
+    html.perf-mode #slice-grid,
+    html.perf-mode #slice-halo { display: none !important; }
+
     #landing-gate .gate-content {
       position: relative;
-      z-index: 10;
+      z-index: 5;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100vh;
+      height: 100%;        /* 100% du parent fixé = viewport height exacte */
       color: white;
       text-align: center;
       pointer-events: none;
@@ -2515,22 +2558,35 @@
     }
     #landing-gate .name span { color: #d4af37; }
     #landing-gate .btn-enter {
-      margin-top: 40px;
+      /* Position absolue calée sur les coordonnées canvas :
+         le canvas dessine le bouton à bY = cy + ch*0.328 = H*0.828 depuis le haut.
+         left:50% + translateX(-50%) = centré horizontalement comme sur le canvas. */
+      position: absolute;
+      top: 82.8%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      margin-top: 0;
       padding: 12px 35px;
       border: 1px solid rgba(212,175,55,0.5);
       background: transparent;
-      color: #d4af37;
+      color: transparent; /* le canvas gère l'affichage du texte */
       font-family: 'Cinzel', serif;
       font-size: 0.8rem;
       pointer-events: auto;
       cursor: pointer;
       letter-spacing: 3px;
-      transition: all 0.4s ease;
+      /* Dimensions calées sur la formule canvas :
+         bW = textWidth + cw*0.055 ≈ 22vw+    bH = max(28px, 5.8vh) */
+      min-width: clamp(200px, 22vw, 460px);
+      height: max(28px, 5.8vh);
+      transition: background 0.35s ease, border-color 0.35s ease, transform 0.35s ease;
+      box-shadow: none;
     }
     #landing-gate .btn-enter:hover {
-      background: rgba(212,175,55,0.1);
-      border-color: #d4af37;
-      transform: scale(1.05);
+      background: rgba(212,175,55,0.32);
+      border-color: rgba(212,175,55,0.95);
+      transform: translate(-50%, -50%) scale(1.05);
+      box-shadow: none;
     }
     #landing-gate .divider {
       width: 80px; height: 1px;
@@ -2682,10 +2738,15 @@
 
   <!-- LANDING GATE - Board d'entree du portfolio -->
   <div id="landing-gate">
-    <div id="spline-container">
-      <spline-viewer url="https://prod.spline.design/11LdDp4sO0B0h84t/scene.splinecode?v=2"></spline-viewer>
+    <!-- Fond : clone de la section hero, flouté/assombri, révélé entre les éclats -->
+    <div id="gate-peek" aria-hidden="true">
+      <div id="gate-peek-inner"></div>
     </div>
-    <div class="overlay"></div>
+    <div id="gate-veil" aria-hidden="true"></div>
+    <!-- Halo lumineux derrière le texte -->
+    <div id="slice-halo" aria-hidden="true"></div>
+    <!-- Grille d'éclats CSS 3D — pointer-events:none, clics passent au texte -->
+    <div id="slice-grid" aria-hidden="true"></div>
 
     <!-- Bouton Mode Éco — coin bas gauche du landing gate -->
     <button id="perf-toggle" onclick="togglePerfMode()" aria-pressed="false">
@@ -2699,12 +2760,25 @@
       <div class="name"><span>J</span>ules <span>B</span>alluais</div>
       <div class="divider"></div>
       <p style="font-size:0.6rem;letter-spacing:4px;color:rgba(255,255,255,0.5);">BUT MESURES PHYSIQUES &middot; IUT DE BLOIS</p>
-      <button class="btn-enter" onclick="startTransition()">CLIQUER POUR D&#201;COUVRIR &#8595;</button>
+      <button class="btn-enter" onclick="sliceAndEnter()">CLIQUER POUR D&#201;COUVRIR &#8595;</button>
     </div>
   </div>
 
   <!-- ── Mode Éco — toggle + état initial du bouton ── -->
   <script>
+    /* Déclenche l'explosion des éclats CSS puis la transition normale.
+       Guard : un clic pendant l'animation ne peut pas la relancer. */
+    function sliceAndEnter() {
+      if (window.__sliceRunning) return;
+      window.__sliceRunning = true;
+      if (window.__sliceExplode) {
+        window.__sliceExplode(function () { startTransition(); });
+      } else {
+        startTransition();
+      }
+    }
+    window.sliceAndEnter = sliceAndEnter;
+
     function togglePerfMode() {
       var active = !document.documentElement.classList.contains('perf-mode');
       localStorage.setItem('perf_mode', active ? '1' : '0');
@@ -2721,6 +2795,615 @@
         if (btn)   { btn.classList.add('perf-active'); btn.setAttribute('aria-pressed', 'true'); }
       }
     })();
+  </script>
+
+  <!-- ── Text Slicer — 800 éclats (40×20) avec fond canvas ───────────────
+       Chaque cellule = une portion de l'image canvas du gate.
+       Au repos  : cellules plates, parfaitement alignées → texte normal.
+       Au hover  : cellules proches du curseur pivotent → lettres brisées.
+       Au clic   : explosion + startTransition().
+  ──────────────────────────────────────────────────────────────────────── -->
+  <script>
+  (function () {
+    if (document.documentElement.classList.contains('perf-mode')) return;
+
+    var COLS      = 20;
+    var ROWS      = 11;
+    var MAX_ROT   = 32;   /* degrés max — discret, Aeris-like */
+    var RADIUS_PX = 280;  /* ~4 tuiles de rayon */
+    var LERP      = 0.12; /* ~0.45 s pour atteindre 95 % */
+
+    var grid = document.getElementById('slice-grid');
+    var gate = document.getElementById('landing-gate');
+    if (!grid || !gate) return;
+
+    gate.addEventListener('click', function(e) {
+      if (e.target.id==='perf-toggle'||(e.target.closest&&e.target.closest('#perf-toggle'))) return;
+      if (typeof window.sliceAndEnter==='function') window.sliceAndEnter();
+    });
+
+    /* ══════════════════════════════════════════════════════
+       CANVAS — peint le visuel complet du gate
+    ═════════════════════════════════════════════════════ */
+    function buildGateCanvas(cw, ch, hovered) {
+      var cv = document.createElement('canvas');
+      cv.width = cw; cv.height = ch;
+      var ctx = cv.getContext('2d');
+
+      /* Fond */
+      ctx.fillStyle = '#080a14';
+      ctx.fillRect(0, 0, cw, ch);
+
+      /* Halo bleu */
+      var hx = cw/2, hy = ch*0.48;
+      var g1 = ctx.createRadialGradient(hx,hy,0, hx,hy, cw*0.42);
+      g1.addColorStop(0,    'rgba(140,155,255,0.42)');
+      g1.addColorStop(0.38, 'rgba(100,118,255,0.18)');
+      g1.addColorStop(0.65, 'rgba(70,85,200,0.05)');
+      g1.addColorStop(1,    'rgba(0,0,0,0)');
+      ctx.fillStyle = g1; ctx.fillRect(0,0,cw,ch);
+      /* Halo blanc central */
+      var g2 = ctx.createRadialGradient(hx,hy,0, hx,hy, cw*0.19);
+      g2.addColorStop(0,   'rgba(255,255,255,0.22)');
+      g2.addColorStop(0.5, 'rgba(220,228,255,0.09)');
+      g2.addColorStop(1,   'rgba(0,0,0,0)');
+      ctx.fillStyle = g2; ctx.fillRect(0,0,cw,ch);
+
+      var cx=cw/2, cy=ch/2;
+      ctx.textBaseline='middle'; ctx.textAlign='center';
+
+      /* ── PORTFOLIO (12 vw, limité à 153 px) ─────────────────── */
+      var tSz = Math.min(Math.max(64, Math.round(cw*0.12)), 153);
+      ctx.font = tSz+'px Cinzel,serif';
+      var tw = ctx.measureText('PORTFOLIO').width;
+
+      /* Halo blanc élargi sous le titre */
+      var g2b = ctx.createRadialGradient(cx, cy-ch*0.10, 0, cx, cy-ch*0.10, tw*0.62);
+      g2b.addColorStop(0,   'rgba(255,255,255,0.18)');
+      g2b.addColorStop(0.5, 'rgba(210,220,255,0.07)');
+      g2b.addColorStop(1,   'rgba(0,0,0,0)');
+      ctx.fillStyle=g2b; ctx.fillRect(0,0,cw,ch);
+
+      var gT = ctx.createLinearGradient(cx-tw*0.55,0, cx+tw*0.55,0);
+      gT.addColorStop(0,   '#8a8480'); gT.addColorStop(0.15,'#d8d4ce');
+      gT.addColorStop(0.32,'#ffffff'); gT.addColorStop(0.50,'#fef5d0');
+      gT.addColorStop(0.58,'#e8c84a'); gT.addColorStop(0.66,'#fef5d0');
+      gT.addColorStop(0.80,'#ffffff'); gT.addColorStop(1,   '#8a8480');
+      ctx.fillStyle = gT;
+      ctx.fillText('PORTFOLIO', cx, cy-ch*0.10);
+
+      /* ── 2024 — 2026 (au-dessus, espacé) ─────────────────────── */
+      ctx.font      = Math.max(10,Math.round(cw*0.009))+'px Cinzel,serif';
+      ctx.fillStyle = 'rgba(255,255,255,0.34)';
+      ctx.letterSpacing = '6px';
+      ctx.fillText('2024  —  2026', cx, cy-ch*0.335);
+
+      /* ── Jules Balluais ──────────────────────────────────────── */
+      var nSz = Math.max(15,Math.round(cw*0.025));
+      ctx.font = 'italic '+nSz+'px Lora,serif';
+      ctx.textAlign = 'left';
+      var nY = cy+ch*0.090;
+      var nW = ctx.measureText('Jules Balluais').width;
+      var nx = cx-nW/2;
+      ctx.fillStyle='#d4af37';                    ctx.fillText('J',nx,nY); nx+=ctx.measureText('J').width;
+      ctx.fillStyle='rgba(255,255,255,0.88)';     ctx.fillText('ules ',nx,nY); nx+=ctx.measureText('ules ').width;
+      ctx.fillStyle='#d4af37';                    ctx.fillText('B',nx,nY); nx+=ctx.measureText('B').width;
+      ctx.fillStyle='rgba(255,255,255,0.88)';     ctx.fillText('alluais',nx,nY);
+
+      /* ── Divider ─────────────────────────────────────────────── */
+      ctx.strokeStyle='rgba(212,175,55,0.48)';
+      ctx.lineWidth=Math.max(1,cw*0.0006);
+      var dY=cy+ch*0.170;
+      ctx.beginPath(); ctx.moveTo(cx-cw*0.055,dY); ctx.lineTo(cx+cw*0.055,dY); ctx.stroke();
+
+      /* ── Sous-titre ──────────────────────────────────────────── */
+      ctx.font = Math.max(8,Math.round(cw*0.0068))+'px Cinzel,serif';
+      ctx.fillStyle='rgba(255,255,255,0.44)'; ctx.textAlign='center';
+      ctx.fillText('BUT MESURES PHYSIQUES  ·  IUT DE BLOIS', cx, cy+ch*0.242);
+
+      /* ── Bouton ──────────────────────────────────────────────── */
+      var bSz=Math.max(8,Math.round(cw*0.008)), bTxt='CLIQUER POUR DÉCOUVRIR  ↓';
+      ctx.font=bSz+'px Cinzel,serif';
+      var bm=ctx.measureText(bTxt), bW=bm.width+cw*0.055, bH=Math.max(28,ch*0.058);
+      var bY=cy+ch*0.328;
+      /* Fond doré au hover */
+      if (hovered) {
+        ctx.fillStyle='rgba(212,175,55,0.30)';
+        ctx.fillRect(cx-bW/2, bY-bH/2, bW, bH);
+      }
+      ctx.strokeStyle= hovered ? 'rgba(212,175,55,0.95)' : 'rgba(212,175,55,0.55)';
+      ctx.lineWidth=1;
+      ctx.strokeRect(cx-bW/2, bY-bH/2, bW, bH);
+      ctx.fillStyle= hovered ? '#fff8dc' : '#d4af37';
+      ctx.fillText(bTxt, cx, bY);
+
+      return cv;
+    }
+
+    /* ══════════════════════════════════════════════════════
+       CRÉATION DES 800 CELLULES
+    ═════════════════════════════════════════════════════ */
+    /* ── Bruit déterministe : chaque tuile a son propre ADN physique ── */
+    function fract(x){ return x - Math.floor(x); }
+    function tileNoise(c, r, salt) {
+      /* hash sin = bruit pseudo-aléatoire stable, pas de Math.random() */
+      return fract(Math.sin(c * 127.1 + r * 311.7 + salt * 74.9) * 43758.5453);
+    }
+
+    /* ══ Three.js — lancé après window.load (tous les scripts defer sont exécutés) ══ */
+    window.addEventListener('load', function() {
+      if (!window.THREE) { console.warn('[gate] THREE non dispo'); return; }
+      var THREE = window.THREE;
+
+      var W = gate.clientWidth  || window.innerWidth;
+      var H = gate.clientHeight || window.innerHeight;
+
+      /* ── Renderer WebGL ──────────────────────────────── */
+      var renderer = new THREE.WebGLRenderer({ alpha:true, antialias:true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setSize(W, H);
+      /* width/height:100% garantit que le canvas couvre tout le conteneur
+         même si le buffer a été initialisé avant un changement de zoom. */
+      renderer.domElement.style.cssText =
+        'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;';
+      grid.appendChild(renderer.domElement);
+
+      /* ── Scène + caméra perspective centrée ─────────── */
+      var scene  = new THREE.Scene();
+      var fov    = 50;
+      var camZ   = (H/2) / Math.tan(fov * Math.PI / 360);
+      var camera = new THREE.PerspectiveCamera(fov, W/H, 0.1, camZ*4);
+      camera.position.z = camZ;
+
+      /* ── Texture canvas : un seul upload GPU partagé ── */
+      var canvas2d = buildGateCanvas(W, H, false);
+      var texture  = new THREE.CanvasTexture(canvas2d);
+
+      /* ── Hover bouton : redessine la texture canvas et force un rendu ── */
+      var gW = W, gH = H;
+      window.__gateSetHover = function(on) {
+        var fresh = buildGateCanvas(gW, gH, on);
+        var c2 = canvas2d.getContext('2d');
+        c2.clearRect(0, 0, gW, gH);
+        c2.drawImage(fresh, 0, 0);
+        texture.needsUpdate = true;
+        renderer.render(scene, camera);
+      };
+
+      /* ── Détection hover via mousemove sur le gate entier ──────────────
+         Reproduit exactement la zone du bouton canvas (bY = cy + ch*0.328,
+         bH = max(28, ch*0.058)) avec ±6px de marge pour couvrir les fentes
+         entre tuiles. Fiable là où l'élément HTML a des bords trop précis. */
+      var _btnHov = false;
+      gate.addEventListener('mousemove', function(e) {
+        var rect    = gate.getBoundingClientRect();
+        var relY    = e.clientY - rect.top;
+        var relX    = e.clientX - rect.left;
+        var gh      = rect.height, gw = rect.width;
+        var bCY     = gh * 0.828;                     /* cy + ch*0.328        */
+        var bH2     = Math.max(28, gh * 0.058) / 2 + 6; /* demi-hauteur + marge */
+        var bW2     = Math.max(110, gw * 0.13) + 20;    /* demi-largeur + marge */
+        var inside  = Math.abs(relY - bCY) < bH2 && Math.abs(relX - gw/2) < bW2;
+        gate.style.cursor = inside ? 'pointer' : '';
+        if (inside !== _btnHov) {
+          _btnHov = inside;
+          window.__gateSetHover(_btnHov);
+        }
+      });
+      gate.addEventListener('mouseleave', function() {
+        gate.style.cursor = '';
+        if (_btnHov) { _btnHov = false; window.__gateSetHover(false); }
+      });
+
+      /* ── Dimensions des tuiles et profondeur du cube ── */
+      var tileW = W / COLS;
+      var tileH = H / ROWS;
+      var depth = Math.min(tileW, tileH) * 0.32; /* épaisseur visible des faces latérales */
+
+      /* ── Matériaux des faces latérales (partagés) ────── */
+      var mR = new THREE.MeshBasicMaterial({ color:0x141830 }); /* droite  */
+      var mL = new THREE.MeshBasicMaterial({ color:0x1a1f38 }); /* gauche  */
+      var mT = new THREE.MeshBasicMaterial({ color:0x1e2440 }); /* haut    */
+      var mB = new THREE.MeshBasicMaterial({ color:0x090c1c }); /* bas     */
+      var mK = new THREE.MeshBasicMaterial({ color:0x04050f }); /* arrière */
+
+      /* ── Bruit déterministe ── */
+      function fract(x){ return x - Math.floor(x); }
+      function tileNoise(c, r, salt) {
+        return fract(Math.sin(c*127.1 + r*311.7 + salt*74.9)*43758.5453);
+      }
+
+      /* ── Groupe central : wraps tous les cubes pour le tilt global ── */
+      var group = new THREE.Group();
+      scene.add(group);
+
+      /* ── Construction de la grille de cubes ──────────── */
+      var cubes = [];
+      for (var row=0; row<ROWS; row++) {
+        for (var col=0; col<COLS; col++) {
+          /* Géométrie : petit gap (×0.994) pour des jointures nettes */
+          var geo  = new THREE.BoxGeometry(tileW*0.994, tileH*0.994, depth);
+
+          /* UV de la face +z (groupe 4, indices 16-19) :
+             mappe exactement la portion (col, row) du canvas sur cette face.
+             Three.js flipY=true : v=1 = haut du canvas, v=0 = bas.             */
+          var uv   = geo.attributes.uv;
+          var uMin = col/COLS,      uMax = (col+1)/COLS;
+          var vMax = (ROWS-row)/ROWS, vMin = (ROWS-row-1)/ROWS;
+          uv.setXY(16, uMin, vMax); uv.setXY(17, uMax, vMax);
+          uv.setXY(18, uMin, vMin); uv.setXY(19, uMax, vMin);
+          uv.needsUpdate = true;
+
+          var mFront = new THREE.MeshBasicMaterial({ map:texture });
+          var mesh   = new THREE.Mesh(geo, [mR,mL,mT,mB,mFront,mK]);
+
+          /* Position dans l'espace monde (grille centrée à l'origine) */
+          mesh.position.set(
+            (col+0.5)*tileW - W/2,
+            -(row+0.5)*tileH + H/2,
+            0
+          );
+          group.add(mesh);   /* ajouté au groupe, pas à la scène directement */
+
+          cubes.push({
+            mesh : mesh,
+            mf   : mFront,       /* référence au matériau avant pour l'explosion */
+            col  : col, row: row,
+            nrx  : tileNoise(col,row,0)*2-1,
+            nry  : tileNoise(col,row,1)*2-1,
+            nz   : tileNoise(col,row,2),
+            cRX:0, cRY:0, tRX:0, tRY:0
+          });
+        }
+      }
+
+      /* Masquer visuellement le HTML original (cubes Three.js le remplacent)
+         opacity:0 au lieu de visibility:hidden → les événements souris passent
+         toujours (nécessaire pour le hover et le clic du bouton .btn-enter)   */
+      var gc = gate.querySelector('.gate-content');
+      if (gc) gc.style.opacity = '0';
+
+      /* ── Peek : reconstruction statique du hero derrière le gate ──
+         Inclut : nav + #accueil (texte + scroll-cue) + placeholder
+         géométrique CSS (FloatingShapes Three.js non cloneable).
+      ─────────────────────────────────────────────────────────────── */
+      (function setupPeek(){
+        var mp        = document.getElementById('main-portfolio');
+        var peekInner = document.getElementById('gate-peek-inner');
+        if (!mp || !peekInner || peekInner.hasChildNodes()) return;
+
+        /* Rendre mp visible pour que les styles calculés soient corrects */
+        mp.style.cssText = 'display:block;visibility:hidden;position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;pointer-events:none;';
+
+        /* ── Wrapper pleine page ── */
+        var wrap = document.createElement('div');
+        wrap.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;pointer-events:none;background:#080c18;';
+
+        /* ① Placeholder géométrique — substitut visuel des FloatingShapes     */
+        var gs = Math.round(Math.min(W,H)*0.26);
+        var geo = document.createElement('div');
+        geo.setAttribute('aria-hidden','true');
+        geo.style.cssText = 'position:absolute;inset:0;overflow:hidden;pointer-events:none;';
+        geo.innerHTML =
+          '<div style="position:absolute;top:10%;right:6%;width:'+gs+'px;height:'+gs+'px;border:1.5px solid rgba(91,155,213,0.18);transform:rotate(38deg);border-radius:4px;"></div>'+
+          '<div style="position:absolute;bottom:16%;left:5%;width:'+Math.round(gs*0.58)+'px;height:'+Math.round(gs*0.58)+'px;border:1px solid rgba(91,155,213,0.11);transform:rotate(-14deg);border-radius:3px;"></div>'+
+          '<div style="position:absolute;top:52%;right:20%;width:'+Math.round(gs*0.35)+'px;height:'+Math.round(gs*0.35)+'px;border:1px solid rgba(212,175,55,0.09);transform:rotate(22deg);border-radius:2px;"></div>';
+        wrap.appendChild(geo);
+
+        /* ② Clone de la barre de navigation ── */
+        var navSrc = mp.querySelector('nav');
+        if (navSrc) {
+          var navClone = navSrc.cloneNode(true);
+          navClone.removeAttribute('id');
+          navClone.querySelectorAll('[id]').forEach(function(el){ el.removeAttribute('id'); });
+          navClone.querySelectorAll('script,button,input,select').forEach(function(el){ el.remove(); });
+          navClone.querySelectorAll('a').forEach(function(el){ el.removeAttribute('href'); el.removeAttribute('onclick'); el.style.pointerEvents='none'; });
+          navClone.style.pointerEvents = 'none';
+          wrap.appendChild(navClone);
+        }
+
+        /* ③ Clone du hero (#accueil) ── */
+        var heroSrc = mp.querySelector('#accueil');
+        if (heroSrc) {
+          var heroClone = heroSrc.cloneNode(true);
+          /* Vider #hero-three (canvas Three.js = vide après cloneNode → artefact) */
+          var heroThree = heroClone.querySelector('#hero-three');
+          if (heroThree) { heroThree.innerHTML=''; heroThree.style.display='none'; }
+          /* ── Retirer TOUS les id — y compris l'élément racine lui-même ───
+             querySelectorAll('[id]') ne sélectionne que les DESCENDANTS.
+             Sans retrait sur heroClone lui-même :
+             • getElementById('accueil') → trouve le clone → drag HeroScene
+               s'attache au clone invisible, pas au vrai #accueil.
+             • getElementById('hero-three') → même problème.               */
+          heroClone.removeAttribute('id');
+          heroClone.querySelectorAll('[id]').forEach(function(el){ el.removeAttribute('id'); });
+          /* Nettoyer scripts, canvas et interactivité */
+          heroClone.querySelectorAll('script,canvas').forEach(function(el){ el.remove(); });
+          heroClone.querySelectorAll('button,a').forEach(function(el){
+            el.removeAttribute('href'); el.removeAttribute('onclick');
+            el.style.pointerEvents='none';
+          });
+          /* ── Forcer visibilité immédiate (les éléments ont opacity:0 +
+             animation fadeUp — dans le clone ces animations recommencent
+             de zéro, le titre resterait invisible pendant la transition) ── */
+          heroClone.querySelectorAll(
+            '.hero-eyebrow,.hero-title,.hero-shimmer,.hero-name-line,'+
+            '.hero-rule,.hero-sub,.hero-btns,.scroll-cue,.scroll-cue-line,.btn'
+          ).forEach(function(el){
+            el.style.opacity   = '1';
+            el.style.animation = 'none';
+            el.style.transform = 'none';
+          });
+          /* ── Restaurer "Jules Balluais" — le typing script vide
+             .hero-name-line immédiatement (innerHTML='') puis retape
+             après 1600ms. Au moment de setupPeek le nœud est vide.
+             On force le texte + suppression du curseur '|' parasite. ── */
+          var nameEl = heroClone.querySelector('.hero-name-line');
+          if (nameEl) nameEl.innerHTML = 'Jules &nbsp;<em>Balluais</em>';
+          /* Supprimer le curseur clignotant du clone (type-cursor span) */
+          heroClone.querySelectorAll('.type-cursor,[class*="cursor"]').forEach(function(el){ el.remove(); });
+          heroClone.style.pointerEvents = 'none';
+          wrap.appendChild(heroClone);
+        }
+
+        peekInner.appendChild(wrap);
+      })();
+
+      /* ══ Physique souris ═══════════════════════════════════════════
+         • Suivi via gate (reste plat → tracking garanti même à haute vitesse)
+         • LERP adaptatif : accélère quand la souris va vite
+         • Bruit par tuile : chaque cube pivote sur son propre axe
+      ══════════════════════════════════════════════════════════════ */
+      var mx=-9999,my=-9999, pmx=-9999,pmy=-9999, velMul=1, rafId;
+
+      function lerp(a,b,t){ return a+(b-a)*t; }
+      function clamp(v,lo,hi){ return v<lo?lo:v>hi?hi:v; }
+
+      gate.addEventListener('mousemove', function(e){
+        var r=gate.getBoundingClientRect();
+        mx=e.clientX-r.left; my=e.clientY-r.top;
+      });
+      gate.addEventListener('mouseleave', function(){ mx=-9999; my=-9999; });
+
+      function animate(){
+        rafId = requestAnimationFrame(animate);
+
+        /* ── Vélocité souris ── */
+        var speed=0;
+        if (mx>-9000&&pmx>-9000){ var vx=mx-pmx,vy=my-pmy; speed=Math.sqrt(vx*vx+vy*vy); }
+        velMul = lerp(velMul, mx>-9000 ? 1+clamp(speed/35,0,1.5) : 1, mx>-9000?0.22:0.12);
+        pmx=mx; pmy=my;
+        var dynLerp = clamp(LERP*(0.6+velMul*0.65), LERP, 0.30);
+
+        /* ── Tilt global du groupe (objet 3D central) ─────────────
+           Toute la scène pivote légèrement selon la position souris —
+           donne l'impression de regarder un objet 3D sous différents angles.
+           Amplitude faible (0.09 rad ≈ 5°) pour rester subtil.            */
+        var tGRX = mx>-9000 ? (my/H - 0.5) *  0.09 : 0;
+        var tGRY = mx>-9000 ? (mx/W - 0.5) * -0.09 : 0;
+        group.rotation.x = lerp(group.rotation.x, tGRX, 0.04);
+        group.rotation.y = lerp(group.rotation.y, tGRY, 0.04);
+
+        /* ── Rotation individuelle de chaque tuile ── */
+        for (var i=0; i<cubes.length; i++){
+          var cu=cubes[i];
+          var tRX=0, tRY=0;
+          if (mx>-9000){
+            var tcx=(cu.col+0.5)/COLS*W, tcy=(cu.row+0.5)/ROWS*H;
+            var dx=mx-tcx, dy=my-tcy;
+            var d=Math.sqrt(dx*dx+dy*dy);
+            var inf=Math.max(0, 1-d/RADIUS_PX);
+            var f=inf*inf;
+            var vm=clamp(velMul,0.6,2.5);
+            if (d>0.5&&inf>0.005){
+              tRX=clamp((-dy/d*0.70+cu.nrx*0.35)*MAX_ROT*f*vm,-MAX_ROT,MAX_ROT);
+              tRY=clamp(( dx/d*0.70+cu.nry*0.35)*MAX_ROT*f*vm,-MAX_ROT,MAX_ROT);
+            }
+          }
+          cu.cRX=lerp(cu.cRX,tRX,dynLerp);
+          cu.cRY=lerp(cu.cRY,tRY,dynLerp);
+          cu.mesh.rotation.x = cu.cRX * Math.PI/180;
+          cu.mesh.rotation.y = cu.cRY * Math.PI/180;
+        }
+        renderer.render(scene, camera);
+      }
+      animate();
+
+      /* ══ Gestionnaire de redimensionnement (zoom Chrome / resize fenêtre) ═════
+         Chrome zoom déclenche window.resize. Sans handler, le canvas garde les
+         dimensions initiales → contenu déborde ou est mal cadré.
+         Solution : rebuild complet des tuiles + texture après 150ms de debounce.
+      ═══════════════════════════════════════════════════════════════════════════ */
+      var resizeTimer;
+      window.addEventListener('resize', function () {
+        /* Si le gate est déjà caché, rien à faire */
+        if (gate.style.display === 'none') return;
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function () {
+          var nW = gate.clientWidth  || window.innerWidth;
+          var nH = gate.clientHeight || window.innerHeight;
+          if (nW === W && nH === H) return;
+          W = nW; H = nH;
+
+          /* 1 — Nouvelle texture canvas */
+          canvas2d = buildGateCanvas(W, H);
+          texture.image = canvas2d;
+          texture.needsUpdate = true;
+
+          /* 2 — Caméra */
+          var newCamZ = (H / 2) / Math.tan(fov * Math.PI / 360);
+          camera.aspect = W / H;
+          camera.position.z = newCamZ;
+          camera.far = newCamZ * 4;
+          camera.updateProjectionMatrix();
+
+          /* 3 — Dimensions des tuiles */
+          tileW = W / COLS;
+          tileH = H / ROWS;
+          depth  = Math.min(tileW, tileH) * 0.32;
+
+          /* 4 — Repositionner + reconstruire la géométrie de chaque cube */
+          for (var i = 0; i < cubes.length; i++) {
+            var cu = cubes[i];
+            cu.mesh.position.set(
+              (cu.col + 0.5) * tileW - W / 2,
+              -(cu.row + 0.5) * tileH + H / 2,
+              0
+            );
+            cu.mesh.geometry.dispose();
+            var g2 = new THREE.BoxGeometry(tileW * 0.994, tileH * 0.994, depth);
+            var uv2 = g2.attributes.uv;
+            var uMin2 = cu.col / COLS,        uMax2 = (cu.col + 1) / COLS;
+            var vMax2 = (ROWS - cu.row) / ROWS, vMin2 = (ROWS - cu.row - 1) / ROWS;
+            uv2.setXY(16, uMin2, vMax2); uv2.setXY(17, uMax2, vMax2);
+            uv2.setXY(18, uMin2, vMin2); uv2.setXY(19, uMax2, vMin2);
+            uv2.needsUpdate = true;
+            cu.mesh.geometry = g2;
+            /* Remettre les rotations individuelles à zéro */
+            cu.cRX = 0; cu.cRY = 0; cu.tRX = 0; cu.tRY = 0;
+          }
+
+          /* 5 — Redimensionner le renderer (met à jour buffer + style px) */
+          renderer.setSize(W, H);
+          /* Réappliquer le CSS responsive (setSize remet des px explicites) */
+          renderer.domElement.style.cssText =
+            'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;';
+
+          /* 6 — Remettre le tilt du groupe à zéro */
+          group.rotation.x = 0;
+          group.rotation.y = 0;
+        }, 150);
+      });
+
+      /* ══ Dispersion radiale + glissement Z au clic ══════════════════
+         Chaque tuile glisse vers la caméra (power2.out) et s'écarte
+         radialement depuis sa position initiale — effet tunnel propre.
+         • Stagger : centre en premier (délai croissant vers les bords)
+         • Z + drift : power2.out (1-(1-t)²) — décélération douce
+         • Drift X/Y proportionnel au vecteur (tile → centre)
+         • Fade dès 50 % du trajet Z, terminé avant d'atteindre la caméra
+      ══════════════════════════════════════════════════════════════ */
+      window.__sliceExplode = function(cb){
+        cancelAnimationFrame(rafId);
+        var called=false;
+        function done(){ if(!called){ called=true; if(typeof cb==='function') cb(); } }
+
+        /* ── Faces latérales transparentes dès le début ── */
+        [mR,mL,mT,mB,mK].forEach(function(m){ m.transparent=true; });
+
+        /* ── Cacher voile, halo et faux hero ── */
+        var veil  = document.getElementById('gate-veil');
+        var halo  = document.getElementById('slice-halo');
+        var gPeek = document.getElementById('gate-peek');
+        if (veil)  veil.style.opacity  = '0';
+        if (halo)  halo.style.opacity  = '0';
+        if (gPeek) gPeek.style.display = 'none';
+
+        /* ── Portfolio derrière : fade-in décalé 0.4s, durée 1.2s ──────
+           Calé sur le moment où les tuiles du centre ont libéré l'espace. */
+        var mp = document.getElementById('main-portfolio');
+        if (mp) {
+          mp.style.cssText = 'display:block;opacity:0;position:fixed;top:0;left:0;width:100%;height:100%;z-index:9998;overflow:hidden;pointer-events:none;';
+          requestAnimationFrame(function(){
+            mp.style.transition = 'opacity 1.2s ease 0.4s';
+            mp.style.opacity    = '1';
+          });
+        }
+
+        var start = performance.now();
+        /* Animation individuelle 3 200–4 000 ms par tuile */
+        var DUR_MIN = 3200, DUR_MAX = 4000;
+        /* Amplification radiale : un peu plus ouverte pour créer le trou central
+           sans perdre l'effet de plongée — mouvement Z toujours dominant */
+        var PUSH = 0.60;
+
+        var tgs = cubes.map(function(cu){
+          /* ── Stagger centrifuge : centre d'abord (0 ms), bords en dernier (≤1 800 ms)
+             dist2d ∈ [0, ~0.5] → 0×1100 = 0 ms au centre, 0.5×1100+700 = 1 250 ms au bord */
+          var ndx   = (cu.col + 0.5) / COLS - 0.5;
+          var ndy   = (cu.row + 0.5) / ROWS - 0.5;
+          var dist2d = Math.sqrt(ndx*ndx + ndy*ndy);
+          var delay  = dist2d * 1100 + tileNoise(cu.col, cu.row, 3) * 700;
+
+          /* ── Durée individuelle ── */
+          var dur = DUR_MIN + tileNoise(cu.col, cu.row, 4) * (DUR_MAX - DUR_MIN);
+
+          /* ── Vecteur radial : position monde = direction depuis le centre ──
+             ox = (col+0.5)*tileW - W/2  →  déjà centré à l'origine.
+             Plus la tuile est loin du centre, plus elle est propulsée loin. */
+          /* Rotation d'ouverture pour les tuiles proches du centre (dist2d < 0.20) :
+             côté droit → spin positif, côté gauche → spin négatif.
+             Les deux tuiles centrales s'écartent en tournant en sens opposé,
+             créant un passage sans augmenter le drift latéral global. */
+          var side = ndx >= 0 ? 1 : -1;
+          var openSpin = dist2d < 0.20 ? side * 130 * (1 - dist2d / 0.20) : 0;
+
+          cu.mf.transparent = true;
+          return {
+            ox     : cu.mesh.position.x,
+            oy     : cu.mesh.position.y,
+            targetZ: camZ * 0.97,
+            driftX : cu.mesh.position.x * PUSH,
+            driftY : cu.mesh.position.y * PUSH,
+            spinZ  : cu.nrx * 55 + openSpin,
+            delay  : delay,
+            dur    : dur
+          };
+        });
+
+        /* Durée totale = fin de la dernière tuile (delay + dur) */
+        var maxEnd = 0;
+        tgs.forEach(function(t){ var e=t.delay+t.dur; if(e>maxEnd) maxEnd=e; });
+        setTimeout(done, maxEnd + 200);
+
+        (function implodeFrame(){
+          var now=performance.now()-start, allDone=true;
+
+          group.rotation.x = lerp(group.rotation.x, 0, 0.06);
+          group.rotation.y = lerp(group.rotation.y, 0, 0.06);
+
+          /* Faces latérales partagées : fade sur durée totale */
+          var gT    = clamp(now / (maxEnd * 0.85), 0, 1);
+          var gFade = Math.max(0, 1 - gT * 1.10);
+          mR.opacity=gFade; mL.opacity=gFade;
+          mT.opacity=gFade; mB.opacity=gFade; mK.opacity=gFade;
+
+          for(var i=0;i<cubes.length;i++){
+            var cu=cubes[i], tg=tgs[i];
+            var t = clamp((now - tg.delay) / tg.dur, 0, 1);
+            if(t < 1) allDone = false;
+
+            /* power2.out : 1-(1-t)² — démarre vite, décélère en fin de course
+               Simule un glissement physique fluide (pas d'à-coup en bout de course) */
+            var eOut = 1 - (1-t)*(1-t);
+
+            /* Z et drift utilisent le même eOut → les deux axes sont couplés :
+               la dispersion latérale est toujours proportionnelle à la profondeur Z */
+            cu.mesh.position.z = tg.targetZ * eOut;
+            cu.mesh.position.x = tg.ox + tg.driftX * eOut;
+            cu.mesh.position.y = tg.oy + tg.driftY * eOut;
+            cu.mesh.rotation.z = tg.spinZ * eOut * Math.PI/180;
+
+            /* Pas de scale explicite — la perspective (×33 à Z=0.97*camZ) suffit */
+            cu.mesh.scale.setScalar(1);
+
+            /* Fade dans les derniers 8 % du TEMPS RÉEL (t), pas de eOut.
+               Avec power2.out, eOut=0.92 arrivait à t≈0.72 → fade de ~1 s.
+               En basculant sur t, la fenêtre est 8 % × DUR ≈ 260–320 ms :
+               la pièce reste à opacity:1 pendant 92 % de sa durée, puis
+               s'évanouit en ~0.3 s quand elle passe hors champ. */
+            var fadeT = clamp((t - 0.92) / 0.08, 0, 1);
+            cu.mf.opacity = Math.max(0, 1 - fadeT);
+          }
+          renderer.render(scene, camera);
+          if(allDone) done(); else requestAnimationFrame(implodeFrame);
+        })();
+      };
+
+    }); /* end load */
+
+  })();
+  /* ── fin Text Slicer ── */
   </script>
 
   <div id="main-portfolio" style="display:none;">
@@ -2935,13 +3618,13 @@
       <div class="s-rule reveal"></div>
       <div class="timeline" id="timeline">
         <div class="tl-item">
-          <div class="tl-year">2020<br>2023</div>
+          <div class="tl-year">2024<br>2026</div>
           <div class="tl-line"></div>
           <div class="tl-body" style="display:flex;align-items:center;gap:1rem;">
-            <img src="images/Logo_balzac.png" alt="Lycée Balzac" class="tl-logo" width="65" height="65" loading="lazy" decoding="async">
+            <img src="images/Logo_IUT_BLOIS.png" alt="IUT de Blois" class="tl-logo" width="65" height="65" loading="lazy" decoding="async">
             <div>
-              <h4>Lycée Balzac — Centre-Val de Loire</h4>
-              <p data-i18n="parcours.bac">Baccalauréat</p>
+              <h4>IUT de Blois</h4>
+              <p data-i18n="parcours.but">BUT Mesures Physiques</p>
             </div>
           </div>
         </div>
@@ -2957,13 +3640,13 @@
           </div>
         </div>
         <div class="tl-item">
-          <div class="tl-year">2024<br>2026</div>
+          <div class="tl-year">2020<br>2023</div>
           <div class="tl-line"></div>
           <div class="tl-body" style="display:flex;align-items:center;gap:1rem;">
-            <img src="images/Logo_IUT_BLOIS.png" alt="IUT de Blois" class="tl-logo" width="65" height="65" loading="lazy" decoding="async">
+            <img src="images/Logo_balzac.png" alt="Lycée Balzac" class="tl-logo" width="65" height="65" loading="lazy" decoding="async">
             <div>
-              <h4>IUT de Blois</h4>
-              <p data-i18n="parcours.but">BUT Mesures Physiques</p>
+              <h4>Lycée Balzac — Centre-Val de Loire</h4>
+              <p data-i18n="parcours.bac">Baccalauréat</p>
             </div>
           </div>
         </div>
@@ -5067,7 +5750,10 @@
   <!-- ── Typing effect — .hero-name-line ("Jules Balluais") ── -->
   <script>
     (function () {
-      var el = document.querySelector('.hero-name-line');
+      /* Cibler uniquement l'original dans #main-portfolio —
+         le clone du peek (dans #landing-gate) contient aussi
+         .hero-name-line et viendrait en premier dans le DOM.  */
+      var el = document.querySelector('#main-portfolio .hero-name-line');
       if (!el) return;
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
@@ -7501,7 +8187,7 @@
       window.addEventListener('mouseup', function () {
         if (!mDragging) return;
         mDragging = false;
-        scene.style.cursor = '';
+        scene.style.cursor = 'pointer';
         if (visibleCards.length === 1) {
           /* Rebond vers le centre avec transition */
           requestAnimationFrame(function () { spinTrack(0, true); });
@@ -8249,23 +8935,24 @@
     document.body.style.overflow = 'hidden';
     function startTransition() {
       var gate = document.getElementById('landing-gate');
-      gate.style.opacity = '0';
-      gate.style.transition = 'opacity 1s ease';
+      var mp   = document.getElementById('main-portfolio');
+
+      /* ── Masquer le gate immédiatement ── */
+      gate.style.display    = 'none';
+      document.body.style.overflow = '';
+
+      /* ── Remettre mp en flux normal (depuis la position fixed du fade-in) ── */
+      if (mp) mp.style.cssText = 'display:block;';
+
       setTimeout(function () {
-        gate.style.display = 'none';
-        document.getElementById('main-portfolio').style.display = 'block';
-        document.body.style.overflow = '';
-        /* Forcer le re-check des barres de compétences déjà dans le viewport
-           (l'IntersectionObserver peut manquer la transition display:none→block) */
-        setTimeout(function () {
-          if (window._triggerSkillBars) {
-            document.querySelectorAll('.skill-group').forEach(function (g) {
-              var r = g.getBoundingClientRect();
-              if (r.top < window.innerHeight && r.bottom > 0) window._triggerSkillBars(g.closest('.skills-extra') || g.parentElement);
-            });
-          }
-        }, 120);
-      }, 1000);
+        if (window._triggerSkillBars) {
+          document.querySelectorAll('.skill-group').forEach(function (g) {
+            var r = g.getBoundingClientRect();
+            if (r.top < window.innerHeight && r.bottom > 0)
+              window._triggerSkillBars(g.closest('.skills-extra') || g.parentElement);
+          });
+        }
+      }, 120);
     }
   </script>
 </body>
