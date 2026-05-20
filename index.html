@@ -3380,7 +3380,7 @@
         /* Durée totale = fin de la dernière tuile (delay + dur) */
         var maxEnd = 0;
         tgs.forEach(function(t){ var e=t.delay+t.dur; if(e>maxEnd) maxEnd=e; });
-        setTimeout(done, maxEnd + 200);
+        setTimeout(done, maxEnd);
 
         (function implodeFrame(){
           var now=performance.now()-start, allDone=true;
@@ -3397,7 +3397,7 @@
           for(var i=0;i<cubes.length;i++){
             var cu=cubes[i], tg=tgs[i];
             var t = clamp((now - tg.delay) / tg.dur, 0, 1);
-            if(t < 1) allDone = false;
+            if(t < 0.99) allDone = false;
 
             /* power2.out : 1-(1-t)² — démarre vite, décélère en fin de course
                Simule un glissement physique fluide (pas d'à-coup en bout de course) */
@@ -6064,7 +6064,27 @@
 
       // Clic sur un lien du panneau → ferme + scroll vers section
       panel.querySelectorAll('a').forEach(function (a) {
-        a.addEventListener('click', close);
+        a.addEventListener('click', function (e) {
+          var href = a.getAttribute('href');
+          // Liens anchor internes (#section) : on gère le scroll manuellement
+          // pour éviter que le navigateur calcule offsetTop pendant que
+          // le layout se stabilise (bug first-load : "Projets" → "Parcours")
+          if (href && href.charAt(0) === '#' && href.length > 1) {
+            e.preventDefault();
+            close();
+            var targetId = href.slice(1);
+            // Double rAF : premier frame = overflow reset + layout flush ;
+            // deuxième frame = positions recalculées → scroll fiable
+            requestAnimationFrame(function () {
+              requestAnimationFrame(function () {
+                var el = document.getElementById(targetId);
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              });
+            });
+          } else {
+            close();
+          }
+        });
       });
 
       // Touche Échap → ferme
@@ -8963,22 +8983,28 @@
       var gate = document.getElementById('landing-gate');
       var mp   = document.getElementById('main-portfolio');
 
-      /* ── Masquer le gate immédiatement ── */
-      gate.style.display    = 'none';
-      document.body.style.overflow = '';
+      /* ── 1. Déverrouiller le scroll et les interactions IMMÉDIATEMENT ── */
+      /*    (avant tout reflow lourd — l'utilisateur peut déjà scroller)   */
+      document.body.style.overflowY = 'auto';
+      document.body.style.overflowX = 'hidden';
+      gate.style.pointerEvents = 'none';
+      if (mp) mp.style.pointerEvents = 'auto';
 
-      /* ── Remettre mp en flux normal (depuis la position fixed du fade-in) ── */
-      if (mp) mp.style.cssText = 'display:block;';
+      /* ── 2. Reflow lourd différé au prochain frame de rendu ── */
+      requestAnimationFrame(function() {
+        gate.style.display = 'none';
+        if (mp) mp.style.cssText = 'display:block;';
 
-      setTimeout(function () {
-        if (window._triggerSkillBars) {
-          document.querySelectorAll('.skill-group').forEach(function (g) {
-            var r = g.getBoundingClientRect();
-            if (r.top < window.innerHeight && r.bottom > 0)
-              window._triggerSkillBars(g.closest('.skills-extra') || g.parentElement);
-          });
-        }
-      }, 120);
+        setTimeout(function () {
+          if (window._triggerSkillBars) {
+            document.querySelectorAll('.skill-group').forEach(function (g) {
+              var r = g.getBoundingClientRect();
+              if (r.top < window.innerHeight && r.bottom > 0)
+                window._triggerSkillBars(g.closest('.skills-extra') || g.parentElement);
+            });
+          }
+        }, 120);
+      });
     }
   </script>
 </body>
