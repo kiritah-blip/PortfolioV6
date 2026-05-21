@@ -714,11 +714,15 @@
       font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.15em;
       text-transform: uppercase; color: var(--accent); background: transparent;
       border: 1px solid rgba(232,185,74,0.3); padding: 0.5rem 1.2rem;
-      cursor: pointer; transition: all 0.25s;
+      cursor: pointer;
+      /* transition: all retiré — il inclut des props numériques du compositing 3D
+         et provoque un hover-flicker sur les cartes IA et Radio (btn en zone de bord).
+         On n'anime que les deux propriétés qui changent visuellement. */
+      transition: background 0.25s, border-color 0.25s;
       display: flex; align-items: center; gap: 0.5rem;
     }
     .btn-more:hover { background: rgba(232,185,74,0.1); border-color: var(--accent); }
-    .btn-more svg { width: 12px; height: 12px; transition: transform 0.25s; }
+    .btn-more svg { width: 12px; height: 12px; transition: transform 0.25s; will-change: transform; }
     .btn-more:hover svg { transform: translateX(3px); }
 
     /* ── CAROUSEL ITEMS ── */
@@ -1421,6 +1425,22 @@
     .carousel-scene .card:hover                    { transform: none; }
     .carousel-scene .carousel-item.c-active .card:hover { transform: scale(1.02); }
 
+    /* ── HOVER ROBUSTE CAROUSEL ──────────────────────────────────────────────────
+       preserve-3d fait perdre CSS :hover 1 frame quand le curseur passe sur un
+       enfant (tool-pill, btn-more) → ::before / ::after / border-color repart.
+       Solution : neutraliser CSS :hover sur carousel-items, piloter via .is-hovered
+       ajouté/retiré par mouseenter / mouseleave JS (pas de bubbling). ---------- */
+    .carousel-scene .carousel-item:hover::before { transform: scaleX(0) !important; }
+    .carousel-scene .carousel-item:hover::after  { opacity: 0 !important; }
+    .carousel-scene .carousel-item:hover         { border-color: var(--border); }
+
+    .carousel-scene .carousel-item.is-hovered::before { transform: scaleX(1); }
+    .carousel-scene .carousel-item.is-hovered::after  { opacity: 1; }
+    .carousel-scene .carousel-item.is-hovered         { border-color: rgba(77,126,168,0.3); }
+    .carousel-scene .carousel-item.c-active.is-hovered .card-preview {
+      filter: brightness(0.42) saturate(2.1);
+    }
+
     /* ── CAROUSEL : mise en forme interne commune à toutes les cartes ── */
     .carousel-scene .carousel-item {
       /* top=1.35rem  |  côtés=1.4rem  |  bas=35px (uniforme → bouton toujours au même niveau) */
@@ -1461,6 +1481,12 @@
       transform: scale(1.0);
       transition: filter 0.65s cubic-bezier(0.4,0,0.2,1),
                   opacity 0.65s cubic-bezier(0.4,0,0.2,1);
+      /* will-change: filter retiré — il créait une couche GPU imbriquée dans la couche
+         opacity du carousel-item (opacity:0.80 inline). Le compositing inter-couches
+         produisait un flash 1-frame au survol des cartes c-left/c-right (Ultrasons, Radio) :
+         la carte apparaissait brièvement à opacity:1 → effet "animation d'entrée qui rejoue".
+         Sans will-change, le filtre est peint dans la couche du parent → pas de glitch. */
+      isolation: isolate;
     }
     /* Active : image la plus lumineuse */
     .carousel-scene .carousel-item.c-active .card-preview {
@@ -1485,11 +1511,11 @@
     .carousel-scene .c-active:hover .card-preview {
       filter: brightness(0.42) saturate(2.1);
     }
-    /* Hover latérales : légère mise en lumière */
-    .carousel-scene .card.c-left:hover  .card-preview,
-    .carousel-scene .card.c-right:hover .card-preview {
-      filter: brightness(0.24) saturate(1.6);
-    }
+    /* Hover latérales : règle retirée — elle déclenchait une transition filter sur la
+       couche GPU enfant (card-preview) au survol des c-left/c-right. Le compositing
+       inter-couches produisait un flash "discotheque" (toute la carte clignotait) sur
+       Ultrasons et Radio. La carte active garde son hover (c-active n'a pas ce bug car
+       son opacity inline est 1 → pas de décalage de compositing visible). */
     /* Annuler le scale au hover dans le carousel (on veut pas de zoom) */
     .carousel-scene .card:hover .card-preview { transform: scale(1.0); }
 
@@ -3591,7 +3617,7 @@
       <p class="hero-eyebrow">2 0 2 4 &nbsp;—&nbsp; 2 0 2 6</p>
       <h1 class="hero-title"><span class="hero-shimmer">PORTFOLIO</span><span class="hero-name-line">Jules &nbsp;<em>Balluais</em></span></h1>
       <div class="hero-rule"></div>
-      <p class="hero-sub">Futur diplômé en <strong>BUT Mesures Physiques</strong> à l'IUT de Blois. Spécialisé en instrumentation, métrologie et automatisation.</p>
+      <p class="hero-sub" data-i18n-html="hero.sub">Futur diplômé en <strong>BUT Mesures Physiques</strong> à l'IUT de Blois. Spécialisé en instrumentation, métrologie et automatisation.</p>
       <div class="hero-btns">
         <a href="#projets" class="btn btn-primary" data-i18n="hero.btn-projects">Voir mes projets</a>
         <a href="#contact" class="btn btn-ghost"   data-i18n="hero.btn-contact">Me contacter</a>
@@ -5246,7 +5272,9 @@
       // ── Animation d'entrée décalée — déclenche quand la grille entre dans le viewport ──
       // ── Tilt 3D + Glow lerpé — le halo coule vers le curseur, glisse au centre au leave ──
       if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches && !('ontouchstart' in window) && !document.documentElement.classList.contains('perf-mode')) {
-        document.querySelectorAll('.card').forEach(function (card) {
+        /* carousel-item exclus : leur glow via --x/--y force card.style.setProperty()
+           à chaque frame → recalcul compositing → hover-flicker sur btn-more (IA, Radio) */
+        document.querySelectorAll('.card:not(.carousel-item)').forEach(function (card) {
           var tx = 0, ty = 0, cx = 0, cy = 0, raf = null;
 
           /* Rayon proportionnel à la taille réelle de la card */
@@ -5283,6 +5311,14 @@
           card.style.setProperty('--y', cy.toFixed(1) + 'px');
         });
       }
+
+      // ── Hover robuste carousel (mouseenter/leave — pas de bubbling, immunisé preserve-3d) ──
+      // CSS :hover perd la cible 1 frame quand le curseur passe sur un enfant en 3D →
+      // ::before / ::after / border-color redémarre. On pilote tout via .is-hovered.
+      document.querySelectorAll('.carousel-item').forEach(function (item) {
+        item.addEventListener('mouseenter', function () { item.classList.add('is-hovered'); });
+        item.addEventListener('mouseleave', function () { item.classList.remove('is-hovered'); });
+      });
     })();
   </script>
 
@@ -7562,6 +7598,10 @@
         window.__i18nLang = lang;
         localStorage.setItem('portfolio-lang', lang);
 
+        // Stopper l'animation typing .hero-sub avant toute màj du DOM
+        // (évite que rebuild() écrase le texte traduit si typing encore en cours)
+        if (!window.__typingDone) { window.__typingAbort = true; }
+
         // Attribut lang sur <html>
         document.documentElement.lang = lang;
 
@@ -7596,16 +7636,6 @@
           var v = T[lang][el.dataset.i18nPlaceholder];
           if (v !== undefined) el.placeholder = v;
         });
-
-        // Hero subtitle — contient du HTML + géré par le typing effect
-        var heroSub = document.querySelector('.hero-sub');
-        if (heroSub) {
-          if (!window.__typingDone) {
-            // Typing encore en cours : on l'interrompt
-            window.__typingAbort = true;
-          }
-          heroSub.innerHTML = T[lang]['hero.sub'];
-        }
 
         // Boutons du toggle
         document.querySelectorAll('.lang-btn').forEach(function (btn) {
