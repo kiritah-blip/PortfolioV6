@@ -2841,26 +2841,37 @@
        CANVAS — peint le visuel complet du gate
     ═════════════════════════════════════════════════════ */
     function buildGateCanvas(cw, ch, hovered) {
+      /* ── Résolution physique (Retina / OLED mobile) ──────────────────────
+         On crée le canvas à la résolution physique de l'écran (DPR ≤ 2) puis
+         on applique ctx.scale(dpr,dpr) : toutes les coordonnées de dessin
+         restent en pixels CSS → le texte est rendu net, sans interpolation. */
+      var _dpr = Math.min(window.devicePixelRatio || 1, 2);
       var cv = document.createElement('canvas');
-      cv.width = cw; cv.height = ch;
+      cv.width  = Math.round(cw * _dpr);
+      cv.height = Math.round(ch * _dpr);
       var ctx = cv.getContext('2d');
+      ctx.scale(_dpr, _dpr);   /* coordonnées CSS désormais */
 
-      /* Fond */
-      ctx.fillStyle = '#080a14';
+      /* Fond — dégradé bleu nuit (plus lumineux que le noir plat #080a14) */
+      var bgGrad = ctx.createLinearGradient(0, 0, 0, ch);
+      bgGrad.addColorStop(0,   '#111828'); /* bleu profond en haut          */
+      bgGrad.addColorStop(0.5, '#0d1220'); /* centre sombre mais pas noir   */
+      bgGrad.addColorStop(1,   '#090c18'); /* coin inférieur plus discret    */
+      ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, cw, ch);
 
-      /* Halo bleu */
+      /* Halo bleu — renforcé pour mobile (halos plus opaques, rayon élargi) */
       var hx = cw/2, hy = ch*0.48;
-      var g1 = ctx.createRadialGradient(hx,hy,0, hx,hy, cw*0.42);
-      g1.addColorStop(0,    'rgba(140,155,255,0.42)');
-      g1.addColorStop(0.38, 'rgba(100,118,255,0.18)');
-      g1.addColorStop(0.65, 'rgba(70,85,200,0.05)');
+      var g1 = ctx.createRadialGradient(hx,hy,0, hx,hy, Math.max(cw,ch)*0.50);
+      g1.addColorStop(0,    'rgba(130,150,255,0.55)');
+      g1.addColorStop(0.35, 'rgba(90,110,240,0.28)');
+      g1.addColorStop(0.62, 'rgba(60,80,200,0.09)');
       g1.addColorStop(1,    'rgba(0,0,0,0)');
       ctx.fillStyle = g1; ctx.fillRect(0,0,cw,ch);
       /* Halo blanc central */
-      var g2 = ctx.createRadialGradient(hx,hy,0, hx,hy, cw*0.19);
-      g2.addColorStop(0,   'rgba(255,255,255,0.22)');
-      g2.addColorStop(0.5, 'rgba(220,228,255,0.09)');
+      var g2 = ctx.createRadialGradient(hx,hy,0, hx,hy, cw*0.22);
+      g2.addColorStop(0,   'rgba(255,255,255,0.28)');
+      g2.addColorStop(0.5, 'rgba(220,228,255,0.12)');
       g2.addColorStop(1,   'rgba(0,0,0,0)');
       ctx.fillStyle = g2; ctx.fillRect(0,0,cw,ch);
 
@@ -2912,7 +2923,12 @@
       ctx.beginPath(); ctx.moveTo(cx-cw*0.055,dY); ctx.lineTo(cx+cw*0.055,dY); ctx.stroke();
 
       /* ── Sous-titre ──────────────────────────────────────────── */
-      ctx.font = Math.max(8,Math.round(cw*0.0068))+'px Cinzel,serif';
+      /* Reset impératif : le letterSpacing '6px' de la ligne "2024 — 2026"
+         était hérité ici → +228px de large sur mobile (38 car × 6px) */
+      ctx.letterSpacing = '0px';
+      /* Taille : proportionnelle à la largeur, plus petite sur mobile étroit */
+      var subSz = Math.max(6, Math.min(Math.round(cw*0.0075), Math.round(cw/38)));
+      ctx.font = subSz+'px Cinzel,serif';
       ctx.fillStyle='rgba(255,255,255,0.44)'; ctx.textAlign='center';
       ctx.fillText('BUT MESURES PHYSIQUES  ·  IUT DE BLOIS', cx, cy+ch*0.242);
 
@@ -2980,7 +2996,7 @@
         var fresh = buildGateCanvas(gW, gH, on);
         var c2 = canvas2d.getContext('2d');
         c2.clearRect(0, 0, gW, gH);
-        c2.drawImage(fresh, 0, 0);
+        c2.drawImage(fresh, 0, 0, gW, gH); /* taille CSS explicite — fonctionne avec le scale DPR */
         texture.needsUpdate = true;
         renderer.render(scene, camera);
       };
