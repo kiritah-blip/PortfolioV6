@@ -1455,6 +1455,9 @@
     .carousel-scene .card-footer{ margin-top: 0.9rem; padding-top: 0.7rem; }
     /* Marge de sécurité interne au bouton — évite qu'il touche le bord bas */
     .carousel-scene .btn-more   { margin-bottom: 6px; }
+    /* Hover JS carousel — CSS :hover peut être instable en preserve-3d */
+    .carousel-scene .btn-more.is-hovered-btn { background: rgba(232,185,74,0.1); border-color: var(--accent); }
+    .carousel-scene .btn-more.is-hovered-btn svg { transform: translateX(3px); }
 
     /* Projet IA [3] : description plus compacte car plus de texte */
     .carousel-scene .carousel-item[data-index="3"] .card-desc {
@@ -1466,6 +1469,14 @@
        (avec flex: 1 sur card-desc, le bouton serait sinon trop haut dans la carte) */
     .carousel-scene .carousel-item[data-index="2"] { padding-bottom: 22px; }
     .carousel-scene .carousel-item[data-index="4"] { padding-bottom: 18px; }
+
+    /* Portfolio [5] et GOT [6] : texte + pills plus denses → desc réduite pour que
+       le bouton reste toujours dans la zone visible (overflow: hidden de .card) */
+    .carousel-scene .carousel-item[data-index="5"] .card-desc,
+    .carousel-scene .carousel-item[data-index="6"] .card-desc {
+      font-size: 0.76rem;
+      line-height: 1.50;
+    }
 
     /* Scale c-active : impossible via CSS (le JS pose style.transform en inline qui gagne).
        La distinction visuelle est assurée par la bordure holographique + la box-shadow. */
@@ -3835,6 +3846,51 @@
           </div>
         </div>
 
+        <!-- PROJET PORTFOLIO -->
+        <div class="card reveal carousel-item" data-index="5" data-preview="images/figma-creer-site-portfolio.png" data-tags="externe">
+          <p class="card-num" data-i18n="proj7.card-num">Projet 07 · Personnel</p>
+          <span class="card-tag" data-i18n="proj7.tag">Développement Web</span>
+          <h3 class="card-title" data-i18n="proj7.title">Conception du Portfolio</h3>
+          <p class="card-desc" data-i18n="proj7.desc">De Google Sites à React + Three.js : 6 versions, zéro formation préalable, apprentissage 100 % autodidacte. Compétences directement réutilisées pour créer le portfolio de mon frère.</p>
+          <div class="card-tools">
+            <span class="tool-pill">HTML/CSS/JS</span>
+            <span class="tool-pill">Three.js</span>
+            <span class="tool-pill">React</span>
+            <span class="tool-pill">Vercel</span>
+            <span class="tool-pill">Claude & Gemini</span>
+          </div>
+          <div class="card-footer">
+            <button class="btn-more" onclick="openModal('portfolio')">
+              <span data-i18n="projects.btn-more">En savoir plus</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- PROJET GOT -->
+        <div class="card reveal carousel-item" data-index="6" data-preview="images/game-of-thrones-subsonic.png" data-tags="externe">
+          <p class="card-num" data-i18n="proj6.card-num">Projet 06 · Personnel</p>
+          <span class="card-tag" data-i18n="proj6.tag">Site Web</span>
+          <h3 class="card-title" data-i18n="proj6.title">Encyclopédie Game of Thrones</h3>
+          <p class="card-desc" data-i18n="proj6.desc">Site web immersif multi-pages : 138 personnages animés, 3 cartes interactives de Westeros, frise chronologique et transitions vidéo synchronisées via GSAP.</p>
+          <div class="card-tools">
+            <span class="tool-pill">React</span>
+            <span class="tool-pill">Vite</span>
+            <span class="tool-pill">GSAP</span>
+            <span class="tool-pill">Vercel</span>
+          </div>
+          <div class="card-footer" style="flex-direction:column;align-items:flex-end;gap:0.5rem;">
+            <button class="btn-more" onclick="openModal('got')">
+              <span data-i18n="projects.btn-more">En savoir plus</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+            <a class="btn-more" href="https://game-of-throne-k5jn.vercel.app/" target="_blank" rel="noopener" style="text-decoration:none;color:var(--blue);border-color:rgba(96,165,250,0.35);">
+              <span data-i18n="proj6.btn">Voir le site</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </a>
+          </div>
+        </div>
+
         </div><!-- /.carousel-track -->
 
         <!-- Navigation flèches -->
@@ -3844,6 +3900,8 @@
           </button>
           <div class="carousel-dots" aria-hidden="true">
             <span class="c-dot c-dot-active"></span>
+            <span class="c-dot"></span>
+            <span class="c-dot"></span>
             <span class="c-dot"></span>
             <span class="c-dot"></span>
             <span class="c-dot"></span>
@@ -4698,6 +4756,251 @@
             <div class="defi-item">
               <h5>Notre émission — Podcast en ligne</h5>
               <p><a href="https://www.radiocampustours.com/emissions/questions-dactu-le-podcast-des-but2-mesures-physiques-de-liut-de-blois-3/" target="_blank" style="color:var(--blue);font-family:'DM Mono',monospace;font-size:0.75rem;">Écouter le podcast →</a></p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL — CONCEPTION DU PORTFOLIO -->
+  <div class="modal-overlay" id="modal-portfolio" onclick="closeModalOnOverlay(event, 'portfolio')">
+    <div class="modal">
+      <div class="modal-header">
+        <button class="modal-close" onclick="closeModal('portfolio')">✕</button>
+        <button class="modal-share" data-modal="portfolio" aria-label="Copier le lien de ce projet">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        </button>
+        <p class="modal-eyebrow" data-i18n="proj7.eyebrow">Projet 07 · Personnel · 2024–2026</p>
+        <h2 class="modal-title" data-i18n="proj7.title">Conception du Portfolio</h2>
+        <div class="modal-tags">
+          <span class="modal-tag">HTML · CSS · JS</span>
+          <span class="modal-tag blue">React · Three.js</span>
+          <span class="modal-tag">Vercel · CI/CD</span>
+          <span class="modal-tag blue">Autodidacte</span>
+        </div>
+      </div>
+      <div class="modal-body">
+
+        <figure class="modal-img">
+          <img src="images/figma-creer-site-portfolio.png" alt="Conception du portfolio" loading="lazy" decoding="async">
+          <figcaption data-i18n="m7.img.cap">De la V1 (Google Sites) à la V6 (React + Three.js) — conception itérative et entièrement autodidacte</figcaption>
+        </figure>
+
+        <div class="modal-section">
+          <p class="modal-section-title" data-i18n="sec.project">Le projet</p>
+          <p data-i18n-html="m7.ctx">Ce portfolio est lui-même un projet à part entière. Parti de <strong>zéro connaissance en programmation</strong>, l'objectif était de créer une présence en ligne qui reflète de vraies compétences techniques — impossible à faire avec un outil no-code. Le résultat final (la V6, que vous consultez en ce moment) est une application web interactive combinant animations 3D, transitions fluides et accessibilité avancée, codée de A à Z.</p>
+        </div>
+
+        <div class="modal-section">
+          <p class="modal-section-title" data-i18n="m7.sec.traj">La trajectoire — de V1 à V6</p>
+          <div class="proj-timeline">
+            <div class="pt-item">
+              <div class="pt-date">V1</div>
+              <div class="pt-line"></div>
+              <div class="pt-body" data-i18n-html="m7.v1"><h5>La rupture avec le no-code</h5><p>Départ depuis un portfolio Google Sites. Constat rapide de ses limites (personnalisation nulle, pas de valeur technique). Décision de tout recoder de zéro en autodidacte — le Google Sites est volontairement conservé comme point de comparaison pour les évaluateurs.</p></div>
+            </div>
+            <div class="pt-item">
+              <div class="pt-date">V2 → V5</div>
+              <div class="pt-line"></div>
+              <div class="pt-body" data-i18n-html="m7.v2-5"><h5>L'apprentissage par l'essai et l'erreur</h5><p>Cinq versions intermédiaires pour apprivoiser la logique du code, l'arborescence des fichiers, le positionnement CSS et les premières animations. Chaque version corrige les erreurs de la précédente. C'est aussi sur Spline qu'un <strong>clavier 3D interactif</strong> est expérimenté pour l'accueil — puis abandonné : le rendu trop "jeu vidéo" s'éloignait de la sobriété d'un portfolio d'ingénieur. Ce pivot prouve un sens critique du design.</p></div>
+            </div>
+            <div class="pt-item">
+              <div class="pt-date">V6</div>
+              <div class="pt-line"></div>
+              <div class="pt-body" data-i18n-html="m7.v6"><h5>L'aboutissement technique</h5><p>Passage à React + Three.js. Charte graphique définitive (fond ardoise <code>#181c22</code>, accents dorés, typographies Cinzel / Lora / DM Mono). Intégration de "The Gate" — un panneau 3D de 5×4 dalles explosant au clic — et d'une sphère Icosaèdre interactive générée avec Base44.</p></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-section">
+          <p class="modal-section-title" data-i18n="m7.sec.learn">Ce que j'ai appris à faire</p>
+          <div class="defi-list">
+            <div class="defi-item" data-i18n-html="m7.learn1">
+              <h5>Concevoir une identité graphique de A à Z</h5>
+              <p>Choix de la palette (3 essais avant de valider le fond ardoise sombre), sélection typographique (Cinzel pour les titres, Lora pour le corps, DM Mono pour les données), mise en place d'un dark/light mode global et d'un accent chromatique qui glisse d'une section à l'autre au scroll via l'API CSS Houdini <code>@property</code>.</p>
+            </div>
+            <div class="defi-item" data-i18n-html="m7.learn2">
+              <h5>Maîtriser un pipeline de développement professionnel</h5>
+              <p>Gestion complète du cycle : code local dans VS Code → versioning avec Git → dépôt GitHub → déploiement automatisé sur Vercel à chaque push. Résolution de bugs de production invisibles en local (sensibilité à la casse Linux, conflits de cache Git, overflow sur les DPI élevés).</p>
+            </div>
+            <div class="defi-item" data-i18n-html="m7.learn3">
+              <h5>Coder des animations avancées</h5>
+              <p>Animation de feuilles volantes en page d'accueil, barres de compétences synchronisées avec compteur dynamique, curseur contextuel à 4 états, focus ring SVG magnétique animé, timeline liée au scroll. Testées et affinées en direct dans <strong>Chrome DevTools</strong> pour valider les timings et les performances frame par frame.</p>
+            </div>
+            <div class="defi-item" data-i18n-html="m7.learn4">
+              <h5>Intégrer de la 3D interactive (Three.js + Spline + Base44)</h5>
+              <p>Utilisation de <strong>Base44</strong> pour générer la structure algorithmique de la sphère Icosaèdre. Exploration de <strong>Spline</strong> pour la modélisation 3D et la gestion des états au survol. Intégration Three.js avec <code>THREE.Raycaster()</code> pour les interactions sur "The Gate" et resize handler debouncé pour corriger les problèmes de DPI.</p>
+            </div>
+            <div class="defi-item" data-i18n-html="m7.learn5">
+              <h5>Accessibilité élite (A11y)</h5>
+              <p>Implémentation de <code>prefers-reduced-motion</code>, <code>prefers-contrast: more</code> (neutralisation du grain de film SVG, remplacement des dégradés animés par des couleurs pleines), gestion des styles d'impression <code>@media print</code> et navigation clavier complète avec focus ring dédié.</p>
+            </div>
+            <div class="defi-item" data-i18n-html="m7.learn6">
+              <h5>Utiliser les IA comme de vrais outils de travail</h5>
+              <p>Apprentissage du <strong>prompt engineering</strong> : savoir isoler un bloc de code problématique, décrire précisément un bug d'affichage 3D ou un comportement asynchrone, lire et interpréter des logs d'erreurs de build. Les échanges avec <strong>Claude</strong> et <strong>Gemini</strong> ont progressivement gagné en précision — moins de reformulations, diagnostics plus directs, solutions plus ciblées.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-section">
+          <p class="modal-section-title" data-i18n="m7.sec.evol">Comment nos échanges se sont améliorés</p>
+          <p data-i18n-html="m7.evol.lead">Au début du projet, les requêtes étaient vagues : <em>"ça marche pas"</em> ou <em>"refais la section"</em>. Avec le temps, la méthode a évolué :</p>
+          <div class="defi-list" style="margin-top:1rem;">
+            <div class="defi-item" data-i18n-html="m7.phase1">
+              <h5>Phase 1 — Découverte</h5>
+              <p>Demandes globales, corrections à l'aveugle. L'IA réécrit de larges blocs sans ciblage précis. Beaucoup d'allers-retours.</p>
+            </div>
+            <div class="defi-item" data-i18n-html="m7.phase2">
+              <h5>Phase 2 — Structuration</h5>
+              <p>Apprentissage d'isoler le problème : copier-coller le seul bloc CSS ou JS concerné, décrire le comportement attendu vs observé. Les réponses deviennent plus chirurgicales.</p>
+            </div>
+            <div class="defi-item" data-i18n-html="m7.phase3">
+              <h5>Phase 3 — Maîtrise</h5>
+              <p>Formulation de requêtes techniques précises avec contexte complet (log d'erreur, environnement, version). Création de fiches récap entre sessions pour ne pas perdre le contexte. L'IA devient un vrai partenaire de débogage, pas un générateur de code aveugle.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-section">
+          <p class="modal-section-title" data-i18n="m7.sec.proof">La preuve concrète — portfolio de mon frère</p>
+          <p data-i18n-html="m7.proof.lead">Après avoir conçu ce portfolio, j'ai pu <strong>rapidement et facilement</strong> reproduire le travail pour mon frère Matthieu. Ce second portfolio lui a permis d'alléger son CV qui était surchargé, en déportant le détail de ses projets sur une page dédiée. La vitesse d'exécution prouve que les compétences sont réellement acquises et transférables.</p>
+          <div class="defi-list" style="margin-top:1rem;">
+            <div class="defi-item" data-i18n-html="m7.proof.item">
+              <h5>Portfolio de Matthieu Balluais</h5>
+              <p><a href="https://kiritah-blip.github.io/Portfolio-Matthieu-Balluais/" target="_blank" rel="noopener" style="color:var(--blue);font-family:'DM Mono',monospace;font-size:0.75rem;">kiritah-blip.github.io/Portfolio-Matthieu-Balluais →</a></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-section">
+          <p class="modal-section-title" data-i18n="sec.what-learned">Ce que j'ai appris</p>
+          <p style="font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.15em;color:var(--blue);text-transform:uppercase;margin-bottom:0.7rem;" data-i18n="m7.lbl.dev">Développement & Code</p>
+          <div class="comp-tags" style="margin-bottom:1.2rem;" data-i18n-html="m7.skills.dev">
+            <span class="comp-tag">HTML5 / CSS3 / Vanilla JS</span>
+            <span class="comp-tag">React + Three.js (WebGL)</span>
+            <span class="comp-tag">CSS Houdini (@property)</span>
+            <span class="comp-tag">Animations avancées (requestAnimationFrame, lerp)</span>
+            <span class="comp-tag">Accessibilité A11y</span>
+          </div>
+          <p style="font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.15em;color:var(--blue);text-transform:uppercase;margin-bottom:0.7rem;" data-i18n="m7.lbl.tools">Outils & Workflow</p>
+          <div class="comp-tags" style="margin-bottom:1.2rem;" data-i18n-html="m7.skills.tools">
+            <span class="comp-tag">VS Code + Chrome DevTools</span>
+            <span class="comp-tag">Git / GitHub / Vercel (CI/CD)</span>
+            <span class="comp-tag">Spline (modélisation 3D web)</span>
+            <span class="comp-tag">Base44 (génération IA de structure 3D)</span>
+            <span class="comp-tag">Claude & Gemini (pair-programming IA)</span>
+          </div>
+          <p style="font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.15em;color:var(--blue);text-transform:uppercase;margin-bottom:0.7rem;" data-i18n="m7.lbl.method">Méthode</p>
+          <div class="comp-tags" data-i18n-html="m7.skills.method">
+            <span class="comp-tag">Prompt engineering technique</span>
+            <span class="comp-tag">Debug local vs production</span>
+            <span class="comp-tag">Sens critique UX / arbitrage design</span>
+            <span class="comp-tag">Apprentissage autonome (autodidacte)</span>
+          </div>
+        </div>
+
+        <div class="modal-section">
+          <p class="modal-section-title" data-i18n="sec.conclusion">Conclusion</p>
+          <div class="conclusion-box" data-i18n-html="m7.conclusion">
+            Ce projet démontre qu'il est possible de passer, en autonomie totale, d'un outil no-code à la maîtrise de frameworks modernes et d'une chaîne de production professionnelle. Chaque bug résolu, chaque version intermédiaire et chaque échange avec une IA a été une opportunité d'apprentissage concret. La capacité à avoir ensuite rapidement reproduit ce travail pour mon frère est la meilleure preuve que ces compétences sont réelles, maîtrisées et immédiatement réutilisables.
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL — ENCYCLOPÉDIE GAME OF THRONES -->
+  <div class="modal-overlay" id="modal-got" onclick="closeModalOnOverlay(event, 'got')">
+    <div class="modal">
+      <div class="modal-header">
+        <button class="modal-close" onclick="closeModal('got')">✕</button>
+        <button class="modal-share" data-modal="got" aria-label="Copier le lien de ce projet">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        </button>
+        <p class="modal-eyebrow" data-i18n="proj6.eyebrow">Projet 06 · Personnel · 2025–2026</p>
+        <h2 class="modal-title" data-i18n="proj6.title">Encyclopédie Game of Thrones</h2>
+        <div class="modal-tags">
+          <span class="modal-tag">React · Vite</span>
+          <span class="modal-tag blue">GSAP</span>
+          <span class="modal-tag">Vercel · CI/CD</span>
+          <span class="modal-tag blue" data-i18n="proj6.tag-perso">Projet Personnel</span>
+        </div>
+      </div>
+      <div class="modal-body">
+
+        <figure class="modal-img">
+          <img src="images/game-of-thrones-subsonic.png" alt="Site web Game of Thrones" loading="lazy" decoding="async">
+          <figcaption data-i18n="m6.img.cap">Site web immersif dédié à l'univers de Game of Thrones — déployé sur Vercel</figcaption>
+        </figure>
+
+        <div class="modal-section">
+          <p class="modal-section-title" data-i18n="sec.project">Le projet</p>
+          <p data-i18n-html="m6.ctx">Encyclopédie interactive et immersive dédiée à l'univers <strong>Game of Thrones</strong>, construite entièrement en français. Le site regroupe 6 sections : Accueil, Personnages, Dragons, Maisons, Monde et Histoire — chacune avec ses propres animations et transitions vidéo. C'est un projet 100 % personnel, mené de zéro jusqu'au déploiement en production sur Vercel.</p>
+        </div>
+
+        <div class="modal-section">
+          <p class="modal-section-title" data-i18n="m6.sec.map">Mon travail — la cartographie (le chantier principal)</p>
+          <div class="defi-list">
+            <div class="defi-item" data-i18n-html="m6.map1"><h5>Masques de régions sur GIMP</h5><p>Pour que le site puisse détecter la région cliquée sur la carte, j'ai créé manuellement sous <strong>GIMP</strong> plus de 10 fichiers PNG de masques — un par région de Westeros. Chaque masque peint en noir la zone exacte du territoire correspondant sur la carte HBO.</p></div>
+            <div class="defi-item" data-i18n-html="m6.map2"><h5>Mesure pixel par pixel de ~90 lieux (Carte 1)</h5><p>Pour placer chaque château, ville et point d'intérêt de Westeros, j'ai relevé manuellement les coordonnées X/Y de <strong>près de 90 lieux</strong> en les mesurant pixel par pixel dans GIMP. J'ai ensuite calculé et appliqué une formule d'offset (x−1, y+9) pour aligner chacun parfaitement sur la carte.</p></div>
+            <div class="defi-item" data-i18n-html="m6.map3"><h5>Extension aux Cartes 2 & 3</h5><p>Le même travail a été reproduit pour deux cartes supplémentaires : Westeros + Cités Libres (82 marqueurs, offset x+5/y+24) et Westeros + Essos complet (33 régions, ~2000×1500 px). Au total, <strong>plus de 250 coordonnées</strong> relevées et vérifiées à la main.</p></div>
+            <div class="defi-item" data-i18n-html="m6.map4"><h5>Description et lore de chaque lieu</h5><p>Pour chaque ville, château ou point d'intérêt placé sur la carte, j'ai rédigé ou sourcé le contenu explicatif : nom exact (traduction française), région d'appartenance, maison associée et informations de lore. Un travail de documentation considérable mené en parallèle de la technique.</p></div>
+          </div>
+        </div>
+
+        <div class="modal-section">
+          <p class="modal-section-title" data-i18n="m6.sec.media">Mon travail — les médias (photos & GIFs)</p>
+          <div class="defi-list">
+            <div class="defi-item" data-i18n-html="m6.media1"><h5>Recherche et sélection des visuels</h5><p>Pour chacun des <strong>138 personnages et dragons</strong> du site, j'ai recherché les images sur des sites spécialisés (wikis GOT, bases de données de fans, archives HBO). Il a fallu identifier les bonnes scènes, vérifier la qualité et la lisibilité des visuels, puis les sélectionner avec soin.</p></div>
+            <div class="defi-item" data-i18n-html="m6.media2"><h5>4 à 5 visuels par personnage — photos & GIFs</h5><p>Chaque personnage dispose de <strong>4 à 5 médias</strong> : une sélection de photos fixes et plusieurs GIFs animés tirés de scènes clés. Les GIFs ont été sourcés ou créés et constituent l'image affichée par défaut au chargement de chaque carte de personnage.</p></div>
+            <div class="defi-item" data-i18n-html="m6.media3"><h5>Conversion et optimisation des formats</h5><p>Tous les médias ont été convertis et optimisés pour le web : passage des images au format <strong>.webp</strong> pour réduire le poids, compression des vidéos depuis des formats lourds (.mov) vers des formats légers compatibles navigateur. Sans cette étape, le site mettait plusieurs secondes à s'afficher en ligne.</p></div>
+            <div class="defi-item" data-i18n-html="m6.media4"><h5>Cadrage et intégration de chaque visuel</h5><p>Une fois intégrés, certains visages étaient mal centrés dans les cartes (~396×398 px). J'ai ajusté le cadrage de chaque portrait via la propriété CSS <code>object-position</code> et réorganisé l'ordre des photos pour toujours mettre le meilleur visuel en avant.</p></div>
+          </div>
+        </div>
+
+        <div class="modal-section">
+          <p class="modal-section-title" data-i18n="sec.what-learned">Ce que j'ai appris</p>
+          <p style="font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.15em;color:var(--blue);text-transform:uppercase;margin-bottom:0.7rem;" data-i18n="m6.lbl.tools">Outils & Techniques</p>
+          <div class="comp-tags" style="margin-bottom:1.2rem;" data-i18n-html="m6.skills.tools">
+            <span class="comp-tag">GIMP (masques PNG, mesures pixel)</span>
+            <span class="comp-tag">Conversion de formats médias (webp, .mov)</span>
+            <span class="comp-tag">Recherche de ressources visuelles en ligne</span>
+            <span class="comp-tag">Organisation & nommage de fichiers en masse</span>
+            <span class="comp-tag">Claude (Anthropic) — IA de développement</span>
+            <span class="comp-tag">Gemini (Google) — recherche & contenu</span>
+          </div>
+          <p style="font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.15em;color:var(--blue);text-transform:uppercase;margin-bottom:0.7rem;" data-i18n="m6.lbl.dev">Développement & Déploiement</p>
+          <div class="comp-tags" style="margin-bottom:1.2rem;" data-i18n-html="m6.skills.dev">
+            <span class="comp-tag">React + Vite + React Router</span>
+            <span class="comp-tag">Git (branches, cache, conflits)</span>
+            <span class="comp-tag">CI/CD Vercel (localhost → production)</span>
+            <span class="comp-tag">Debug local vs production</span>
+            <span class="comp-tag">Optimisation WebPerf</span>
+          </div>
+          <p style="font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.15em;color:var(--blue);text-transform:uppercase;margin-bottom:0.7rem;" data-i18n="m6.lbl.method">Méthode & Autonomie</p>
+          <div class="comp-tags" data-i18n-html="m6.skills.method">
+            <span class="comp-tag">Gestion d'un projet de A à Z</span>
+            <span class="comp-tag">Résolution autonome de bugs</span>
+            <span class="comp-tag">Documentation et passation de contexte</span>
+          </div>
+        </div>
+
+        <div class="modal-section">
+          <p class="modal-section-title" data-i18n="sec.conclusion">Conclusion</p>
+          <div class="conclusion-box" data-i18n-html="m6.conclusion">
+            Ce projet dépasse largement le cadre du simple apprentissage du code. Le travail de fond — mesurer manuellement des centaines de coordonnées, créer les masques de régions sur GIMP, sourcer et convertir plusieurs centaines de médias pour 138 personnages — représente un investissement personnel considérable. C'est cette combinaison entre rigueur du contenu et maîtrise technique qui donne au site sa profondeur et son caractère unique.
+          </div>
+        </div>
+
+        <div class="modal-section">
+          <p class="modal-section-title" data-i18n="sec.annexes">Annexes</p>
+          <div class="defi-list">
+            <div class="defi-item" data-i18n-html="m6.link">
+              <h5>Site web en ligne</h5>
+              <p><a href="https://game-of-throne-k5jn.vercel.app/" target="_blank" rel="noopener" style="color:var(--blue);font-family:'DM Mono',monospace;font-size:0.75rem;">game-of-throne-k5jn.vercel.app →</a></p>
             </div>
           </div>
         </div>
@@ -6224,6 +6527,17 @@
           'proj5.title':   'Projet Atelier Radio',
           'proj5.desc':    'Émission de 15 minutes en partenariat avec Radio Campus Tours 99.5. Scénarisation, argumentation contradictoire et passage en studio en conditions réelles.',
           'proj5.eyebrow': 'Projet 05 · Atelier · 2025–2026',
+          'proj6.card-num': 'Projet 06 · Personnel',
+          'proj6.tag':     'Site Web',
+          'proj6.title':   'Encyclopédie Game of Thrones',
+          'proj6.desc':    'Site web immersif multi-pages : 138 personnages animés, 3 cartes interactives de Westeros, frise chronologique et transitions vidéo synchronisées via GSAP.',
+          'proj6.btn':     'Voir le site',
+          'proj7.card-num': 'Projet 07 · Personnel',
+          'proj7.tag':     'Développement Web',
+          'proj7.title':   'Conception du Portfolio',
+          'proj7.desc':    'De Google Sites à React + Three.js : 6 versions, zéro formation préalable, apprentissage 100 % autodidacte. Compétences réutilisées pour créer le portfolio de mon frère.',
+          'proj7.btn':     'Portfolio du frère →',
+          'proj7.eyebrow': 'Projet 07 · Personnel · 2024–2026',
 
           /* Contact & Footer */
           'contact.eyebrow':       '05 — Contact',
@@ -6399,6 +6713,17 @@
           'proj5.title':   'Radio Workshop Project',
           'proj5.desc':    '15-minute broadcast in partnership with Radio Campus Tours 99.5. Scriptwriting, counter-argumentation and live studio recording.',
           'proj5.eyebrow': 'Project 05 · Workshop · 2025–2026',
+          'proj6.card-num': 'Project 06 · Personal',
+          'proj6.tag':     'Website',
+          'proj6.title':   'Game of Thrones Encyclopedia',
+          'proj6.desc':    'Immersive multi-page website: 138 animated characters, 3 interactive maps of Westeros, historical timeline and video transitions synchronized via GSAP.',
+          'proj6.btn':     'Visit the site',
+          'proj7.card-num': 'Project 07 · Personal',
+          'proj7.tag':     'Web Development',
+          'proj7.title':   'Portfolio Design',
+          'proj7.desc':    'From Google Sites to React + Three.js: 6 versions, zero prior training, 100% self-taught. Skills reused to quickly build my brother\'s portfolio.',
+          'proj7.btn':     'Brother\'s Portfolio →',
+          'proj7.eyebrow': 'Project 07 · Personal · 2024–2026',
 
           /* Contact & Footer */
           'contact.eyebrow':       '05 — Contact',
@@ -6507,7 +6832,60 @@
           'm4.ctx.p1':    'Internship at <strong>Comet Traitements</strong> in Belgium, a subsidiary of the Comet group specialising in the physical processing and recovery of metal residues from shredding (scrap metal, WEEE, end-of-life vehicles). The company is working on AI-based tools to automate metal sorting and recognition.',
           'm4.ctx.p2':    'My role consisted of contributing to this R&D project — sample preparation, metrology and technical specification writing — in collaboration with an international technology partner.',
           'm4.conf':      'For confidentiality reasons related to a non-disclosure agreement (NDA) signed with the company, I am unable to share further details (methodology, results, documents, photos) about this project. This page only presents a general overview of the internship\'s context and the skills developed.',
-          'm4.skills':    '<span class="comp-tag">Industrial metrology</span><span class="comp-tag">Specification writing</span><span class="comp-tag">Material preparation protocols</span><span class="comp-tag">Machine Learning / Labelling</span><span class="comp-tag">International collaboration</span><span class="comp-tag">Industrial AI vision</span><span class="comp-tag">Project management (Gantt/WBS)</span><span class="comp-tag">Professional communication</span><span class="comp-tag">Technical writing in English</span>'
+          'm4.skills':    '<span class="comp-tag">Industrial metrology</span><span class="comp-tag">Specification writing</span><span class="comp-tag">Material preparation protocols</span><span class="comp-tag">Machine Learning / Labelling</span><span class="comp-tag">International collaboration</span><span class="comp-tag">Industrial AI vision</span><span class="comp-tag">Project management (Gantt/WBS)</span><span class="comp-tag">Professional communication</span><span class="comp-tag">Technical writing in English</span>',
+          /* ── Modals GOT (m6) & Portfolio (m7) ── */
+          'sec.project':     'The Project',
+          'sec.what-learned':'What I Learned',
+          'proj6.eyebrow':   'Project 06 · Personal · 2025–2026',
+          'proj6.tag-perso': 'Personal Project',
+          'm6.img.cap':      'Immersive website dedicated to the Game of Thrones universe — deployed on Vercel',
+          'm6.sec.map':      'My Work — Mapping (the main task)',
+          'm6.sec.media':    'My Work — Media (photos & GIFs)',
+          'm6.ctx':          'Interactive and immersive encyclopedia dedicated to the <strong>Game of Thrones</strong> universe, built entirely in French. The site includes 6 sections: Home, Characters, Dragons, Houses, World and History — each with its own animations and video transitions. This is a 100% personal project, taken from scratch to production deployment on Vercel.',
+          'm6.map1':         '<h5>Region Masks in GIMP</h5><p>To enable the site to detect the clicked region on the map, I manually created over 10 PNG mask files in <strong>GIMP</strong> — one per region of Westeros. Each mask paints the exact area of the corresponding territory in black over the HBO map.</p>',
+          'm6.map2':         '<h5>Pixel-by-pixel measurement of ~90 locations (Map 1)</h5><p>To position every castle, city and point of interest in Westeros, I manually recorded the X/Y coordinates of <strong>nearly 90 locations</strong> by measuring them pixel by pixel in GIMP. I then calculated and applied an offset formula (x−1, y+9) to align each one perfectly on the map.</p>',
+          'm6.map3':         '<h5>Extended to Maps 2 & 3</h5><p>The same work was reproduced for two additional maps: Westeros + Free Cities (82 markers, offset x+5/y+24) and Westeros + full Essos (33 regions, ~2000×1500 px). In total, <strong>over 250 coordinates</strong> recorded and verified by hand.</p>',
+          'm6.map4':         '<h5>Description and lore for each location</h5><p>For every city, castle or point of interest placed on the map, I wrote or sourced the explanatory content: exact name (French translation), region, associated house and lore information. Considerable documentation work carried out in parallel with the technical work.</p>',
+          'm6.media1':       '<h5>Researching and selecting visuals</h5><p>For each of the <strong>138 characters and dragons</strong> on the site, I searched for images on specialist sites (GOT wikis, fan databases, HBO archives). I had to identify the right scenes, check the quality and readability of the visuals, then select them carefully.</p>',
+          'm6.media2':       '<h5>4 to 5 visuals per character — photos & GIFs</h5><p>Each character has <strong>4 to 5 media items</strong>: a selection of still photos and several animated GIFs from key scenes. The GIFs were sourced or created and serve as the default image when each character card loads.</p>',
+          'm6.media3':       '<h5>Format conversion and optimisation</h5><p>All media were converted and optimised for the web: images converted to <strong>.webp</strong> format to reduce file size, videos compressed from heavy formats (.mov) to lightweight browser-compatible formats. Without this step, the site took several seconds to load online.</p>',
+          'm6.media4':       '<h5>Framing and integrating each visual</h5><p>Once integrated, some faces were poorly centred within the cards (~396×398 px). I adjusted the framing of each portrait via the CSS <code>object-position</code> property and reorganised the photo order to always lead with the best visual.</p>',
+          'm6.lbl.tools':    'Tools & Techniques',
+          'm6.skills.tools': '<span class="comp-tag">GIMP (PNG masks, pixel measurements)</span><span class="comp-tag">Media format conversion (webp, .mov)</span><span class="comp-tag">Online visual resource research</span><span class="comp-tag">Mass file organisation & naming</span><span class="comp-tag">Claude (Anthropic) — AI development</span><span class="comp-tag">Gemini (Google) — research & content</span>',
+          'm6.lbl.dev':      'Development & Deployment',
+          'm6.skills.dev':   '<span class="comp-tag">React + Vite + React Router</span><span class="comp-tag">Git (branches, cache, conflicts)</span><span class="comp-tag">CI/CD Vercel (localhost → production)</span><span class="comp-tag">Local vs production debugging</span><span class="comp-tag">WebPerf optimisation</span>',
+          'm6.lbl.method':   'Method & Autonomy',
+          'm6.skills.method':'<span class="comp-tag">End-to-end project management</span><span class="comp-tag">Autonomous bug fixing</span><span class="comp-tag">Documentation and context handover</span>',
+          'm6.conclusion':   'This project goes far beyond simply learning to code. The foundational work — manually measuring hundreds of coordinates, creating region masks in GIMP, sourcing and converting several hundred media files for 138 characters — represents a considerable personal investment. It is this combination of content rigour and technical mastery that gives the site its depth and unique character.',
+          'm6.link':         '<h5>Live Website</h5><p><a href="https://game-of-throne-k5jn.vercel.app/" target="_blank" rel="noopener" style="color:var(--blue);font-family:\'DM Mono\',monospace;font-size:0.75rem;">game-of-throne-k5jn.vercel.app →</a></p>',
+          'm7.img.cap':      'From V1 (Google Sites) to V6 (React + Three.js) — iterative design, fully self-taught',
+          'm7.ctx':          'This portfolio is itself a project in its own right. Starting from <strong>zero programming knowledge</strong>, the goal was to create an online presence that reflects genuine technical skills — something impossible with a no-code tool. The final result (V6, which you are viewing right now) is an interactive web application combining 3D animations, smooth transitions and advanced accessibility, coded from scratch.',
+          'm7.sec.traj':     'The Journey — from V1 to V6',
+          'm7.v1':           '<h5>Breaking free from no-code</h5><p>Starting point: a Google Sites portfolio. Quickly recognising its limitations (zero customisation, no technical value). Decision to recode everything from scratch, self-taught — the Google Sites version is deliberately kept as a comparison point for evaluators.</p>',
+          'm7.v2-5':         '<h5>Learning through trial and error</h5><p>Five intermediate versions to master code logic, file structure, CSS positioning and first animations. Each version fixes the mistakes of the previous one. It was also on Spline that an <strong>interactive 3D keyboard</strong> was experimented for the homepage — then abandoned: the overly "video game" rendering strayed from the sobriety expected of an engineering portfolio. This pivot proves a critical design sensibility.</p>',
+          'm7.v6':           '<h5>The technical culmination</h5><p>Transition to React + Three.js. Final visual identity (slate background <code>#181c22</code>, golden accents, Cinzel / Lora / DM Mono typefaces). Integration of "The Gate" — a 3D panel of 5×4 tiles that explode on click — and an interactive Icosahedron sphere generated with Base44.</p>',
+          'm7.sec.learn':    'What I Learned to Do',
+          'm7.learn1':       '<h5>Designing a visual identity from scratch</h5><p>Choosing the palette (3 attempts before settling on the dark slate background), typographic selection (Cinzel for headings, Lora for body text, DM Mono for data), implementing a global dark/light mode and a chromatic accent that shifts between sections as you scroll, using the CSS Houdini <code>@property</code> API.</p>',
+          'm7.learn2':       '<h5>Mastering a professional development pipeline</h5><p>Full cycle management: local code in VS Code → versioning with Git → GitHub repository → automated deployment on Vercel with every push. Resolving production bugs invisible locally (Linux case sensitivity, Git cache conflicts, overflow on high-DPI screens).</p>',
+          'm7.learn3':       '<h5>Coding advanced animations</h5><p>Flying leaves animation on the homepage, skill bars synchronised with a dynamic counter, 4-state contextual cursor, animated magnetic SVG focus ring, scroll-linked timeline. Tested and refined live in <strong>Chrome DevTools</strong> to validate timing and frame-by-frame performance.</p>',
+          'm7.learn4':       '<h5>Integrating interactive 3D (Three.js + Spline + Base44)</h5><p>Using <strong>Base44</strong> to generate the algorithmic structure of the Icosahedron sphere. Exploring <strong>Spline</strong> for 3D modelling and hover state management. Three.js integration with <code>THREE.Raycaster()</code> for interactions on "The Gate" and a debounced resize handler to fix DPI issues.</p>',
+          'm7.learn5':       '<h5>Elite accessibility (A11y)</h5><p>Implementation of <code>prefers-reduced-motion</code>, <code>prefers-contrast: more</code> (disabling SVG film grain, replacing animated gradients with solid colours), <code>@media print</code> style management and full keyboard navigation with a dedicated focus ring.</p>',
+          'm7.learn6':       '<h5>Using AI as genuine work tools</h5><p>Learning <strong>prompt engineering</strong>: knowing how to isolate a problematic code block, precisely describe a 3D rendering bug or asynchronous behaviour, read and interpret build error logs. Exchanges with <strong>Claude</strong> and <strong>Gemini</strong> progressively became more precise — fewer reformulations, more direct diagnoses, more targeted solutions.</p>',
+          'm7.sec.evol':     'How Our Exchanges Improved',
+          'm7.evol.lead':    'At the start of the project, requests were vague: <em>"it doesn\'t work"</em> or <em>"redo the section"</em>. Over time, the approach evolved:',
+          'm7.phase1':       '<h5>Phase 1 — Discovery</h5><p>Broad requests, blind corrections. The AI rewrites large blocks without precise targeting. Lots of back-and-forth.</p>',
+          'm7.phase2':       '<h5>Phase 2 — Structuring</h5><p>Learning to isolate the problem: copy-pasting only the relevant CSS or JS block, describing the expected vs observed behaviour. Responses become more surgical.</p>',
+          'm7.phase3':       '<h5>Phase 3 — Mastery</h5><p>Formulating precise technical requests with full context (error log, environment, version). Creating recap sheets between sessions to preserve context. The AI becomes a genuine debugging partner, not a blind code generator.</p>',
+          'm7.sec.proof':    'Concrete Proof — my brother\'s portfolio',
+          'm7.proof.lead':   'After designing this portfolio, I was able to <strong>quickly and easily</strong> reproduce the work for my brother Matthieu. This second portfolio allowed him to lighten his overloaded CV by moving the detail of his projects to a dedicated page. The speed of execution proves that the skills are genuinely acquired and transferable.',
+          'm7.proof.item':   '<h5>Matthieu Balluais\'s Portfolio</h5><p><a href="https://kiritah-blip.github.io/Portfolio-Matthieu-Balluais/" target="_blank" rel="noopener" style="color:var(--blue);font-family:\'DM Mono\',monospace;font-size:0.75rem;">kiritah-blip.github.io/Portfolio-Matthieu-Balluais →</a></p>',
+          'm7.lbl.dev':      'Development & Code',
+          'm7.skills.dev':   '<span class="comp-tag">HTML5 / CSS3 / Vanilla JS</span><span class="comp-tag">React + Three.js (WebGL)</span><span class="comp-tag">CSS Houdini (@property)</span><span class="comp-tag">Advanced animations (requestAnimationFrame, lerp)</span><span class="comp-tag">A11y Accessibility</span>',
+          'm7.lbl.tools':    'Tools & Workflow',
+          'm7.skills.tools': '<span class="comp-tag">VS Code + Chrome DevTools</span><span class="comp-tag">Git / GitHub / Vercel (CI/CD)</span><span class="comp-tag">Spline (3D web modelling)</span><span class="comp-tag">Base44 (AI-generated 3D structure)</span><span class="comp-tag">Claude & Gemini (AI pair-programming)</span>',
+          'm7.lbl.method':   'Method',
+          'm7.skills.method':'<span class="comp-tag">Technical prompt engineering</span><span class="comp-tag">Local vs production debugging</span><span class="comp-tag">UX critical thinking / design trade-offs</span><span class="comp-tag">Self-directed learning (self-taught)</span>',
+          'm7.conclusion':   'This project demonstrates that it is possible to move, fully autonomously, from a no-code tool to mastering modern frameworks and a professional production pipeline. Every bug solved, every intermediate version and every exchange with an AI has been a concrete learning opportunity. The ability to quickly reproduce this work for my brother is the best proof that these skills are real, mastered and immediately reusable.'
         },
         de: {
           /* Kartennummern */
@@ -6626,6 +7004,17 @@
           'proj5.title':   'Radio-Workshop-Projekt',
           'proj5.desc':    '15-minütige Sendung in Partnerschaft mit Radio Campus Tours 99.5. Drehbuch, kontroverses Argumentieren und Live-Studioaufnahme.',
           'proj5.eyebrow': 'Projekt 05 · Workshop · 2025–2026',
+          'proj6.card-num': 'Projekt 06 · Persönlich',
+          'proj6.tag':     'Website',
+          'proj6.title':   'Game of Thrones Enzyklopädie',
+          'proj6.desc':    'Immersive mehrseitige Website: 138 animierte Charaktere, 3 interaktive Karten von Westeros, historische Zeitleiste und via GSAP synchronisierte Videoübergänge.',
+          'proj6.btn':     'Website besuchen',
+          'proj7.card-num': 'Projekt 07 · Persönlich',
+          'proj7.tag':     'Webentwicklung',
+          'proj7.title':   'Portfolio-Entwicklung',
+          'proj7.desc':    'Von Google Sites zu React + Three.js: 6 Versionen, ohne Vorkenntnisse, 100% autodidaktisch. Fähigkeiten direkt für das Portfolio meines Bruders genutzt.',
+          'proj7.btn':     'Portfolio des Bruders →',
+          'proj7.eyebrow': 'Projekt 07 · Persönlich · 2024–2026',
           /* Kontakt & Fußzeile */
           'contact.eyebrow':       '05 — Kontakt',
           'contact.title':         'Kontakt aufnehmen',
@@ -6733,7 +7122,60 @@
           'm4.ctx.p1':    'Praktikum bei <strong>Comet Traitements</strong> in Belgien, einer Tochtergesellschaft der Comet-Gruppe, die sich auf die physikalische Aufbereitung und Verwertung von Metallrückständen aus dem Schredderprozess (Schrott, Elektroschrott, Altfahrzeuge) spezialisiert hat. Das Unternehmen entwickelt KI-basierte Werkzeuge zur Automatisierung der Metallsortierung und -erkennung.',
           'm4.ctx.p2':    'Meine Aufgabe bestand darin, zu diesem F&E-Projekt beizutragen — Probenvorbereitung, Metrologie und Erstellung technischer Lastenhefte — in Zusammenarbeit mit einem internationalen Technologiepartner.',
           'm4.conf':      'Aus Vertraulichkeitsgründen im Zusammenhang mit einer mit dem Unternehmen unterzeichneten Geheimhaltungsvereinbarung (NDA) kann ich keine weiteren Details (Methodik, Ergebnisse, Dokumente, Fotos) zu diesem Projekt teilen. Diese Seite zeigt lediglich einen allgemeinen Überblick über den Kontext des Praktikums und die entwickelten Kompetenzen.',
-          'm4.skills':    '<span class="comp-tag">Industrielle Metrologie</span><span class="comp-tag">Erstellung von Lastenheften</span><span class="comp-tag">Materialvorbereitungsprotokolle</span><span class="comp-tag">Machine Learning / Labeling</span><span class="comp-tag">Internationale Zusammenarbeit</span><span class="comp-tag">Industrielle KI-Bildverarbeitung</span><span class="comp-tag">Projektmanagement (Gantt/WBS)</span><span class="comp-tag">Berufliche Kommunikation</span><span class="comp-tag">Fachliches Schreiben auf Englisch</span>'
+          'm4.skills':    '<span class="comp-tag">Industrielle Metrologie</span><span class="comp-tag">Erstellung von Lastenheften</span><span class="comp-tag">Materialvorbereitungsprotokolle</span><span class="comp-tag">Machine Learning / Labeling</span><span class="comp-tag">Internationale Zusammenarbeit</span><span class="comp-tag">Industrielle KI-Bildverarbeitung</span><span class="comp-tag">Projektmanagement (Gantt/WBS)</span><span class="comp-tag">Berufliche Kommunikation</span><span class="comp-tag">Fachliches Schreiben auf Englisch</span>',
+          /* ── Modals GOT (m6) & Portfolio (m7) ── */
+          'sec.project':     'Das Projekt',
+          'sec.what-learned':'Was ich gelernt habe',
+          'proj6.eyebrow':   'Projekt 06 · Persönlich · 2025–2026',
+          'proj6.tag-perso': 'Persönliches Projekt',
+          'm6.img.cap':      'Immersive Website über das Game-of-Thrones-Universum — auf Vercel deployed',
+          'm6.sec.map':      'Meine Arbeit — Kartographie (die Hauptaufgabe)',
+          'm6.sec.media':    'Meine Arbeit — Medien (Fotos & GIFs)',
+          'm6.ctx':          'Interaktive und immersive Enzyklopädie des <strong>Game of Thrones</strong>-Universums, komplett auf Französisch erstellt. Die Website umfasst 6 Bereiche: Startseite, Charaktere, Drachen, Häuser, Welt und Geschichte — jeweils mit eigenen Animationen und Videoübergängen. Ein 100% persönliches Projekt, von Grund auf bis zur Produktionsbereitstellung auf Vercel entwickelt.',
+          'm6.map1':         '<h5>Regionsmasken in GIMP</h5><p>Um der Website zu ermöglichen, die angeklickte Region auf der Karte zu erkennen, habe ich manuell über 10 PNG-Maskendateien in <strong>GIMP</strong> erstellt — eine pro Region von Westeros. Jede Maske malt die genaue Fläche des entsprechenden Gebiets schwarz über die HBO-Karte.</p>',
+          'm6.map2':         '<h5>Pixelgenaue Messung von ~90 Standorten (Karte 1)</h5><p>Um jede Burg, Stadt und jeden Punkt von Interesse in Westeros zu positionieren, habe ich die X/Y-Koordinaten von <strong>fast 90 Standorten</strong> manuell pixelweise in GIMP gemessen. Anschließend berechnete und wendete ich eine Versatzformel (x−1, y+9) an, um jeden perfekt auf der Karte auszurichten.</p>',
+          'm6.map3':         '<h5>Erweiterung auf Karten 2 & 3</h5><p>Die gleiche Arbeit wurde für zwei weitere Karten wiederholt: Westeros + Freie Städte (82 Marker, Versatz x+5/y+24) und Westeros + ganz Essos (33 Regionen, ~2000×1500 px). Insgesamt <strong>über 250 Koordinaten</strong> manuell erfasst und überprüft.</p>',
+          'm6.map4':         '<h5>Beschreibung und Lore für jeden Standort</h5><p>Für jede auf der Karte platzierte Stadt, Burg oder jeden Punkt von Interesse habe ich die erklärenden Inhalte verfasst oder recherchiert: genauen Namen (französische Übersetzung), Region, zugehöriges Haus und Lore-Informationen. Erhebliche Dokumentationsarbeit parallel zur technischen Arbeit.</p>',
+          'm6.media1':       '<h5>Recherche und Auswahl von Bildmaterial</h5><p>Für jeden der <strong>138 Charaktere und Drachen</strong> auf der Website habe ich auf spezialisierten Seiten (GOT-Wikis, Fan-Datenbanken, HBO-Archive) nach Bildern gesucht. Ich musste die richtigen Szenen identifizieren, Qualität und Lesbarkeit prüfen und sie sorgfältig auswählen.</p>',
+          'm6.media2':       '<h5>4 bis 5 Medien pro Charakter — Fotos & GIFs</h5><p>Jeder Charakter verfügt über <strong>4 bis 5 Medienobjekte</strong>: eine Auswahl von Standfotos und mehrere animierte GIFs aus Schlüsselszenen. Die GIFs dienen als Standardbild beim Laden jeder Charakterkarte.</p>',
+          'm6.media3':       '<h5>Formatkonvertierung und Optimierung</h5><p>Alle Medien wurden für das Web konvertiert und optimiert: Bilder in <strong>.webp</strong>-Format konvertiert, Videos von schweren Formaten (.mov) in leichte, browserkompatible Formate komprimiert. Ohne diesen Schritt dauerte das Laden der Website online mehrere Sekunden.</p>',
+          'm6.media4':       '<h5>Bildausschnitt und Integration jedes Bildes</h5><p>Nach der Integration waren einige Gesichter innerhalb der Karten (~396×398 px) schlecht zentriert. Ich passte den Ausschnitt jedes Porträts über die CSS-Eigenschaft <code>object-position</code> an und ordnete die Fotos neu, um immer mit dem besten Bild zu beginnen.</p>',
+          'm6.lbl.tools':    'Werkzeuge & Techniken',
+          'm6.skills.tools': '<span class="comp-tag">GIMP (PNG-Masken, Pixelmessungen)</span><span class="comp-tag">Medienformatkonvertierung (webp, .mov)</span><span class="comp-tag">Online-Bildrecherche</span><span class="comp-tag">Massenhafte Dateiorganisation & Benennung</span><span class="comp-tag">Claude (Anthropic) — KI-Entwicklung</span><span class="comp-tag">Gemini (Google) — Recherche & Inhalte</span>',
+          'm6.lbl.dev':      'Entwicklung & Deployment',
+          'm6.skills.dev':   '<span class="comp-tag">React + Vite + React Router</span><span class="comp-tag">Git (Branches, Cache, Konflikte)</span><span class="comp-tag">CI/CD Vercel (localhost → Produktion)</span><span class="comp-tag">Lokales vs. Produktions-Debugging</span><span class="comp-tag">WebPerf-Optimierung</span>',
+          'm6.lbl.method':   'Methode & Autonomie',
+          'm6.skills.method':'<span class="comp-tag">Ganzheitliches Projektmanagement</span><span class="comp-tag">Autonome Fehlerbehebung</span><span class="comp-tag">Dokumentation und Kontextübergabe</span>',
+          'm6.conclusion':   'Dieses Projekt geht weit über das bloße Erlernen von Code hinaus. Die Grundlagenarbeit — manuelles Messen von Hunderten von Koordinaten, Erstellen von Regionsmasken in GIMP, Beschaffen und Konvertieren von mehreren hundert Mediendateien für 138 Charaktere — stellt eine erhebliche persönliche Investition dar. Diese Kombination aus inhaltlicher Sorgfalt und technischer Kompetenz verleiht der Website ihre Tiefe und ihren einzigartigen Charakter.',
+          'm6.link':         '<h5>Live-Website</h5><p><a href="https://game-of-throne-k5jn.vercel.app/" target="_blank" rel="noopener" style="color:var(--blue);font-family:\'DM Mono\',monospace;font-size:0.75rem;">game-of-throne-k5jn.vercel.app →</a></p>',
+          'm7.img.cap':      'Von V1 (Google Sites) bis V6 (React + Three.js) — iteratives Design, vollständig autodidaktisch',
+          'm7.ctx':          'Dieses Portfolio ist selbst ein eigenständiges Projekt. Ausgehend von <strong>null Programmierkenntnissen</strong> war das Ziel, eine Online-Präsenz zu schaffen, die echte technische Fähigkeiten widerspiegelt — etwas, das mit einem No-Code-Tool unmöglich ist. Das Endergebnis (V6, das Sie gerade ansehen) ist eine interaktive Webanwendung mit 3D-Animationen, flüssigen Übergängen und erweiterter Barrierefreiheit, von Grund auf kodiert.',
+          'm7.sec.traj':     'Der Weg — von V1 bis V6',
+          'm7.v1':           '<h5>Befreiung vom No-Code</h5><p>Ausgangspunkt: ein Google-Sites-Portfolio. Schnell die Grenzen erkannt (null Individualisierung, kein technischer Wert). Entscheidung, alles von Grund auf neu zu programmieren, autodidaktisch — die Google-Sites-Version wird bewusst als Vergleichspunkt für Prüfer beibehalten.</p>',
+          'm7.v2-5':         '<h5>Lernen durch Versuch und Irrtum</h5><p>Fünf Zwischenversionen, um Codelogik, Dateistruktur, CSS-Positionierung und erste Animationen zu beherrschen. Jede Version behebt die Fehler der vorherigen. Auf Spline wurde auch eine <strong>interaktive 3D-Tastatur</strong> für die Startseite ausprobiert — dann aufgegeben: das zu „Videospiel"-ähnliche Rendering wich von der für ein Ingenieursportfolio erwarteten Nüchternheit ab. Dieser Schwenk beweist kritisches Designgespür.</p>',
+          'm7.v6':           '<h5>Der technische Höhepunkt</h5><p>Wechsel zu React + Three.js. Endgültige visuelle Identität (Schiefer-Hintergrund <code>#181c22</code>, goldene Akzente, Cinzel / Lora / DM Mono Schriften). Integration von „The Gate" — ein 3D-Panel aus 5×4 Kacheln, die per Klick explodieren — und einer interaktiven Ikosaeder-Sphäre, generiert mit Base44.</p>',
+          'm7.sec.learn':    'Was ich zu tun gelernt habe',
+          'm7.learn1':       '<h5>Eine visuelle Identität von Grund auf gestalten</h5><p>Farbpalette auswählen (3 Versuche bis zum dunklen Schieferhintergrund), typografische Auswahl (Cinzel für Überschriften, Lora für Fließtext, DM Mono für Daten), globalen Dunkel-/Hellmodus und chromatischen Akzent implementieren, der beim Scrollen zwischen Abschnitten wechselt — mit der CSS Houdini <code>@property</code>-API.</p>',
+          'm7.learn2':       '<h5>Eine professionelle Entwicklungspipeline meistern</h5><p>Vollständiger Zyklus: lokaler Code in VS Code → Versionierung mit Git → GitHub-Repository → automatisches Deployment auf Vercel bei jedem Push. Produktionsfehler beheben, die lokal unsichtbar sind (Linux-Groß-/Kleinschreibung, Git-Cache-Konflikte, Überlauf auf High-DPI-Bildschirmen).</p>',
+          'm7.learn3':       '<h5>Fortgeschrittene Animationen programmieren</h5><p>Fliegende-Blätter-Animation auf der Startseite, mit dynamischem Zähler synchronisierte Skill-Balken, 4-Zustands-Kontextkursor, animierter magnetischer SVG-Fokusring, scroll-verknüpfte Zeitachse. Live in <strong>Chrome DevTools</strong> getestet und verfeinert.</p>',
+          'm7.learn4':       '<h5>Interaktives 3D integrieren (Three.js + Spline + Base44)</h5><p><strong>Base44</strong> zur Generierung der algorithmischen Struktur der Ikosaeder-Sphäre nutzen. <strong>Spline</strong> für 3D-Modellierung und Hover-State-Management erkunden. Three.js-Integration mit <code>THREE.Raycaster()</code> für „The Gate" und ein debounced Resize-Handler zur Behebung von DPI-Problemen.</p>',
+          'm7.learn5':       '<h5>Erstklassige Barrierefreiheit (A11y)</h5><p>Implementierung von <code>prefers-reduced-motion</code>, <code>prefers-contrast: more</code> (SVG-Filmkorn deaktivieren, animierte Farbverläufe durch Volltonfarben ersetzen), <code>@media print</code>-Stilverwaltung und vollständige Tastaturnavigation mit dediziertem Fokusring.</p>',
+          'm7.learn6':       '<h5>KI als echte Arbeitswerkzeuge nutzen</h5><p><strong>Prompt Engineering</strong> erlernen: wissen, wie man einen problematischen Code-Block isoliert, einen 3D-Rendering-Fehler oder asynchrones Verhalten präzise beschreibt, Build-Fehlerprotokolle liest und interpretiert. Austausche mit <strong>Claude</strong> und <strong>Gemini</strong> wurden schrittweise präziser — weniger Umformulierungen, direktere Diagnosen, gezieltere Lösungen.</p>',
+          'm7.sec.evol':     'Wie sich unsere Austausche verbessert haben',
+          'm7.evol.lead':    'Am Anfang des Projekts waren die Anfragen vage: <em>„es funktioniert nicht"</em> oder <em>„mach den Abschnitt neu"</em>. Im Laufe der Zeit entwickelte sich der Ansatz:',
+          'm7.phase1':       '<h5>Phase 1 — Entdeckung</h5><p>Breite Anfragen, blinde Korrekturen. Die KI schreibt große Blöcke ohne präzises Targeting um. Viel Hin und Her.</p>',
+          'm7.phase2':       '<h5>Phase 2 — Strukturierung</h5><p>Lernen, das Problem zu isolieren: nur den relevanten CSS- oder JS-Block kopieren, das erwartete vs. beobachtete Verhalten beschreiben. Antworten werden präziser.</p>',
+          'm7.phase3':       '<h5>Phase 3 — Meisterschaft</h5><p>Präzise technische Anfragen mit vollständigem Kontext formulieren. Zusammenfassungsblätter zwischen Sitzungen erstellen. Die KI wird zum echten Debugging-Partner, nicht zum blinden Code-Generator.</p>',
+          'm7.sec.proof':    'Konkreter Beweis — das Portfolio meines Bruders',
+          'm7.proof.lead':   'Nach der Gestaltung dieses Portfolios konnte ich die Arbeit für meinen Bruder Matthieu <strong>schnell und einfach</strong> reproduzieren. Dieses zweite Portfolio ermöglichte es ihm, seinen Lebenslauf zu entlasten, indem er die Details seiner Projekte auf eine eigene Seite auslagerte. Die Ausführungsgeschwindigkeit beweist, dass die Fähigkeiten wirklich erworben und übertragbar sind.',
+          'm7.proof.item':   '<h5>Portfolio von Matthieu Balluais</h5><p><a href="https://kiritah-blip.github.io/Portfolio-Matthieu-Balluais/" target="_blank" rel="noopener" style="color:var(--blue);font-family:\'DM Mono\',monospace;font-size:0.75rem;">kiritah-blip.github.io/Portfolio-Matthieu-Balluais →</a></p>',
+          'm7.lbl.dev':      'Entwicklung & Code',
+          'm7.skills.dev':   '<span class="comp-tag">HTML5 / CSS3 / Vanilla JS</span><span class="comp-tag">React + Three.js (WebGL)</span><span class="comp-tag">CSS Houdini (@property)</span><span class="comp-tag">Fortgeschrittene Animationen (requestAnimationFrame, lerp)</span><span class="comp-tag">A11y Barrierefreiheit</span>',
+          'm7.lbl.tools':    'Werkzeuge & Workflow',
+          'm7.skills.tools': '<span class="comp-tag">VS Code + Chrome DevTools</span><span class="comp-tag">Git / GitHub / Vercel (CI/CD)</span><span class="comp-tag">Spline (3D-Web-Modellierung)</span><span class="comp-tag">Base44 (KI-generierte 3D-Struktur)</span><span class="comp-tag">Claude & Gemini (KI-Pair-Programming)</span>',
+          'm7.lbl.method':   'Methode',
+          'm7.skills.method':'<span class="comp-tag">Technisches Prompt Engineering</span><span class="comp-tag">Lokales vs. Produktions-Debugging</span><span class="comp-tag">UX-kritisches Denken / Design-Kompromisse</span><span class="comp-tag">Selbstgesteuertes Lernen (autodidaktisch)</span>',
+          'm7.conclusion':   'Dieses Projekt zeigt, dass es möglich ist, sich vollständig autonom von einem No-Code-Tool zur Beherrschung moderner Frameworks und einer professionellen Produktionspipeline zu bewegen. Jeder behobene Fehler, jede Zwischenversion und jeder Austausch mit einer KI war eine konkrete Lernmöglichkeit. Die Fähigkeit, diese Arbeit anschließend schnell für meinen Bruder zu reproduzieren, ist der beste Beweis dafür, dass diese Fähigkeiten real, beherrscht und sofort wiederverwendbar sind.'
         },
         es: {
           /* Numéros de cartes */
@@ -6831,6 +7273,17 @@
           'proj5.title':   'Proyecto de Taller de Radio',
           'proj5.desc':    'Emisión de 15 minutos en colaboración con Radio Campus Tours 99.5. Redacción de guion, contraargumentación y grabación en directo.',
           'proj5.eyebrow': 'Proyecto 05 · Taller · 2025–2026',
+          'proj6.card-num': 'Proyecto 06 · Personal',
+          'proj6.tag':     'Sitio Web',
+          'proj6.title':   'Enciclopedia Game of Thrones',
+          'proj6.desc':    'Sitio web inmersivo multipágina: 138 personajes animados, 3 mapas interactivos de Westeros, cronología histórica y transiciones de vídeo sincronizadas con GSAP.',
+          'proj6.btn':     'Ver el sitio',
+          'proj7.card-num': 'Proyecto 07 · Personal',
+          'proj7.tag':     'Desarrollo Web',
+          'proj7.title':   'Diseño del Portfolio',
+          'proj7.desc':    'De Google Sites a React + Three.js: 6 versiones, sin formación previa, aprendizaje 100% autodidacta. Habilidades reutilizadas para el portfolio de mi hermano.',
+          'proj7.btn':     'Portfolio del hermano →',
+          'proj7.eyebrow': 'Proyecto 07 · Personal · 2024–2026',
           /* Contact & Footer */
           'contact.eyebrow':       '05 — Contacto',
           'contact.title':         'Encuéntrame',
@@ -6959,7 +7412,60 @@
           'm4.ctx.p1':    'Prácticas en <strong>Comet Traitements</strong> en Bélgica, filial del grupo Comet especializada en el tratamiento físico y la valorización de residuos metálicos procedentes de la trituración (chatarra, RAEE, vehículos al final de su vida útil). La empresa trabaja en herramientas basadas en IA para automatizar la clasificación y el reconocimiento de metales.',
           'm4.ctx.p2':    'Mi función consistió en contribuir a este proyecto de I+D — preparación de muestras, metrología y redacción de especificaciones técnicas — en colaboración con un socio tecnológico internacional.',
           'm4.conf':      'Por motivos de confidencialidad relacionados con un acuerdo de no divulgación (NDA) firmado con la empresa, no puedo compartir más detalles (metodología, resultados, documentos, fotos) sobre este proyecto. Esta página presenta únicamente una visión general del contexto de las prácticas y de las competencias desarrolladas.',
-          'm4.skills':    '<span class="comp-tag">Metrología industrial</span><span class="comp-tag">Redacción de pliegos de condiciones</span><span class="comp-tag">Protocolos de preparación de materiales</span><span class="comp-tag">Machine Learning / Etiquetado</span><span class="comp-tag">Colaboración internacional</span><span class="comp-tag">Visión artificial industrial con IA</span><span class="comp-tag">Gestión de proyectos (Gantt/WBS)</span><span class="comp-tag">Comunicación profesional</span><span class="comp-tag">Redacción técnica en inglés</span>'
+          'm4.skills':    '<span class="comp-tag">Metrología industrial</span><span class="comp-tag">Redacción de pliegos de condiciones</span><span class="comp-tag">Protocolos de preparación de materiales</span><span class="comp-tag">Machine Learning / Etiquetado</span><span class="comp-tag">Colaboración internacional</span><span class="comp-tag">Visión artificial industrial con IA</span><span class="comp-tag">Gestión de proyectos (Gantt/WBS)</span><span class="comp-tag">Comunicación profesional</span><span class="comp-tag">Redacción técnica en inglés</span>',
+          /* ── Modals GOT (m6) & Portfolio (m7) ── */
+          'sec.project':     'El Proyecto',
+          'sec.what-learned':'Lo que Aprendí',
+          'proj6.eyebrow':   'Proyecto 06 · Personal · 2025–2026',
+          'proj6.tag-perso': 'Proyecto Personal',
+          'm6.img.cap':      'Sitio web inmersivo dedicado al universo de Juego de Tronos — desplegado en Vercel',
+          'm6.sec.map':      'Mi Trabajo — Cartografía (la tarea principal)',
+          'm6.sec.media':    'Mi Trabajo — Medios (fotos y GIFs)',
+          'm6.ctx':          'Enciclopedia interactiva e inmersiva dedicada al universo de <strong>Juego de Tronos</strong>, construida íntegramente en francés. El sitio incluye 6 secciones: Inicio, Personajes, Dragones, Casas, Mundo e Historia — cada una con sus propias animaciones y transiciones de vídeo. Se trata de un proyecto 100% personal, desarrollado desde cero hasta el despliegue en producción en Vercel.',
+          'm6.map1':         '<h5>Máscaras de regiones en GIMP</h5><p>Para que el sitio detecte la región clicada en el mapa, creé manualmente más de 10 archivos de máscara PNG en <strong>GIMP</strong> — uno por región de Westeros. Cada máscara pinta de negro el área exacta del territorio correspondiente sobre el mapa de HBO.</p>',
+          'm6.map2':         '<h5>Medición píxel a píxel de ~90 ubicaciones (Mapa 1)</h5><p>Para posicionar cada castillo, ciudad y punto de interés en Westeros, registré manualmente las coordenadas X/Y de <strong>casi 90 ubicaciones</strong> midiéndolas píxel a píxel en GIMP. Luego calculé y apliqué una fórmula de desplazamiento (x−1, y+9) para alinear cada una perfectamente en el mapa.</p>',
+          'm6.map3':         '<h5>Extensión a los Mapas 2 & 3</h5><p>El mismo trabajo se reprodujo para dos mapas adicionales: Westeros + Ciudades Libres (82 marcadores, desplazamiento x+5/y+24) y Westeros + Essos completo (33 regiones, ~2000×1500 px). En total, <strong>más de 250 coordenadas</strong> registradas y verificadas a mano.</p>',
+          'm6.map4':         '<h5>Descripción y lore de cada ubicación</h5><p>Para cada ciudad, castillo o punto de interés del mapa, redacté o busqué el contenido explicativo: nombre exacto (traducción al francés), región, casa asociada e información de lore. Un trabajo de documentación considerable realizado en paralelo al trabajo técnico.</p>',
+          'm6.media1':       '<h5>Búsqueda y selección de recursos visuales</h5><p>Para cada uno de los <strong>138 personajes y dragones</strong> del sitio, busqué imágenes en sitios especializados (wikis de GOT, bases de datos de fans, archivos de HBO). Tuve que identificar las escenas correctas, comprobar la calidad y legibilidad de los visuales, y seleccionarlos con cuidado.</p>',
+          'm6.media2':       '<h5>4 a 5 recursos visuales por personaje — fotos y GIFs</h5><p>Cada personaje tiene <strong>4 a 5 elementos multimedia</strong>: una selección de fotos fijas y varios GIFs animados de escenas clave. Los GIFs se obtuvieron o crearon y sirven como imagen predeterminada al cargar cada tarjeta de personaje.</p>',
+          'm6.media3':       '<h5>Conversión de formato y optimización</h5><p>Todos los medios se convirtieron y optimizaron para la web: imágenes convertidas al formato <strong>.webp</strong> para reducir el tamaño, vídeos comprimidos de formatos pesados (.mov) a formatos ligeros compatibles con el navegador. Sin este paso, el sitio tardaba varios segundos en cargar.</p>',
+          'm6.media4':       '<h5>Encuadre e integración de cada visual</h5><p>Una vez integradas, algunas caras quedaban mal centradas dentro de las tarjetas (~396×398 px). Ajusté el encuadre de cada retrato mediante la propiedad CSS <code>object-position</code> y reorganicé el orden de las fotos para comenzar siempre con el mejor visual.</p>',
+          'm6.lbl.tools':    'Herramientas y Técnicas',
+          'm6.skills.tools': '<span class="comp-tag">GIMP (máscaras PNG, mediciones de píxeles)</span><span class="comp-tag">Conversión de formato multimedia (webp, .mov)</span><span class="comp-tag">Búsqueda de recursos visuales en línea</span><span class="comp-tag">Organización masiva de archivos</span><span class="comp-tag">Claude (Anthropic) — desarrollo con IA</span><span class="comp-tag">Gemini (Google) — investigación y contenido</span>',
+          'm6.lbl.dev':      'Desarrollo y Despliegue',
+          'm6.skills.dev':   '<span class="comp-tag">React + Vite + React Router</span><span class="comp-tag">Git (ramas, caché, conflictos)</span><span class="comp-tag">CI/CD Vercel (localhost → producción)</span><span class="comp-tag">Depuración local vs. producción</span><span class="comp-tag">Optimización de WebPerf</span>',
+          'm6.lbl.method':   'Método y Autonomía',
+          'm6.skills.method':'<span class="comp-tag">Gestión integral del proyecto</span><span class="comp-tag">Resolución autónoma de errores</span><span class="comp-tag">Documentación y traspaso de contexto</span>',
+          'm6.conclusion':   'Este proyecto va mucho más allá de aprender a programar. El trabajo fundacional — medir manualmente cientos de coordenadas, crear máscaras de regiones en GIMP, obtener y convertir varios cientos de archivos multimedia para 138 personajes — representa una inversión personal considerable. Es esta combinación de rigor de contenido y dominio técnico lo que da al sitio su profundidad y carácter único.',
+          'm6.link':         '<h5>Sitio Web en Vivo</h5><p><a href="https://game-of-throne-k5jn.vercel.app/" target="_blank" rel="noopener" style="color:var(--blue);font-family:\'DM Mono\',monospace;font-size:0.75rem;">game-of-throne-k5jn.vercel.app →</a></p>',
+          'm7.img.cap':      'De V1 (Google Sites) a V6 (React + Three.js) — diseño iterativo, completamente autodidacta',
+          'm7.ctx':          'Este portfolio es en sí mismo un proyecto propio. Partiendo de <strong>cero conocimientos de programación</strong>, el objetivo era crear una presencia en línea que refleje habilidades técnicas genuinas — algo imposible de lograr con una herramienta sin código. El resultado final (V6, que estás viendo ahora mismo) es una aplicación web interactiva que combina animaciones 3D, transiciones fluidas y accesibilidad avanzada, programada desde cero.',
+          'm7.sec.traj':     'El Camino — de V1 a V6',
+          'm7.v1':           '<h5>Liberarse del no-code</h5><p>Punto de partida: un portfolio de Google Sites. Reconociendo rápidamente sus limitaciones (cero personalización, sin valor técnico). Decisión de recodificar todo desde cero, de forma autodidacta — la versión de Google Sites se mantiene deliberadamente como punto de comparación para los evaluadores.</p>',
+          'm7.v2-5':         '<h5>Aprender mediante ensayo y error</h5><p>Cinco versiones intermedias para dominar la lógica del código, la estructura de archivos, el posicionamiento CSS y las primeras animaciones. Cada versión corrige los errores de la anterior. También se experimentó con un <strong>teclado 3D interactivo</strong> en Spline para la página de inicio — luego abandonado: el renderizado demasiado "videojuego" se alejaba de la sobriedad esperada en un portfolio de ingeniería. Este giro demuestra un sentido crítico del diseño.</p>',
+          'm7.v6':           '<h5>La culminación técnica</h5><p>Transición a React + Three.js. Identidad visual final (fondo pizarra <code>#181c22</code>, acentos dorados, tipografías Cinzel / Lora / DM Mono). Integración de "The Gate" — un panel 3D de 5×4 baldosas que explotan al hacer clic — y una esfera Icosaedro interactiva generada con Base44.</p>',
+          'm7.sec.learn':    'Lo que Aprendí a Hacer',
+          'm7.learn1':       '<h5>Diseñar una identidad visual desde cero</h5><p>Elegir la paleta (3 intentos antes de decidirse por el fondo oscuro pizarra), selección tipográfica (Cinzel para títulos, Lora para cuerpo de texto, DM Mono para datos), implementar un modo oscuro/claro global y un acento cromático que cambia entre secciones al desplazarse, usando la API CSS Houdini <code>@property</code>.</p>',
+          'm7.learn2':       '<h5>Dominar un pipeline de desarrollo profesional</h5><p>Gestión del ciclo completo: código local en VS Code → versionado con Git → repositorio GitHub → despliegue automatizado en Vercel con cada push. Resolución de errores de producción invisibles localmente (distinción de mayúsculas en Linux, conflictos de caché Git, desbordamiento en pantallas de alta resolución).</p>',
+          'm7.learn3':       '<h5>Programar animaciones avanzadas</h5><p>Animación de hojas volando en la página de inicio, barras de habilidades sincronizadas con un contador dinámico, cursor contextual de 4 estados, anillo de enfoque SVG magnético animado, línea de tiempo vinculada al scroll. Probado y refinado en vivo en <strong>Chrome DevTools</strong> para validar el timing y el rendimiento cuadro a cuadro.</p>',
+          'm7.learn4':       '<h5>Integrar 3D interactivo (Three.js + Spline + Base44)</h5><p>Usar <strong>Base44</strong> para generar la estructura algorítmica de la esfera Icosaedro. Explorar <strong>Spline</strong> para modelado 3D y gestión de estados hover. Integración de Three.js con <code>THREE.Raycaster()</code> para interacciones en "The Gate" y un manejador de redimensionamiento con debounce para corregir problemas de DPI.</p>',
+          'm7.learn5':       '<h5>Accesibilidad de élite (A11y)</h5><p>Implementación de <code>prefers-reduced-motion</code>, <code>prefers-contrast: more</code> (deshabilitar el grano de película SVG, reemplazar gradientes animados por colores sólidos), gestión de estilos <code>@media print</code> y navegación completa por teclado con un anillo de enfoque dedicado.</p>',
+          'm7.learn6':       '<h5>Usar la IA como herramientas de trabajo reales</h5><p>Aprender <strong>ingeniería de prompts</strong>: saber cómo aislar un bloque de código problemático, describir con precisión un error de renderizado 3D o un comportamiento asíncrono, leer e interpretar registros de errores de compilación. Los intercambios con <strong>Claude</strong> y <strong>Gemini</strong> se volvieron progresivamente más precisos — menos reformulaciones, diagnósticos más directos, soluciones más específicas.</p>',
+          'm7.sec.evol':     'Cómo Mejoraron Nuestros Intercambios',
+          'm7.evol.lead':    'Al inicio del proyecto, las solicitudes eran vagas: <em>"no funciona"</em> o <em>"rehaz la sección"</em>. Con el tiempo, el enfoque evolucionó:',
+          'm7.phase1':       '<h5>Fase 1 — Descubrimiento</h5><p>Solicitudes amplias, correcciones a ciegas. La IA reescribe grandes bloques sin precisión. Muchos intercambios de ida y vuelta.</p>',
+          'm7.phase2':       '<h5>Fase 2 — Estructuración</h5><p>Aprender a aislar el problema: copiar solo el bloque CSS o JS relevante, describir el comportamiento esperado vs. observado. Las respuestas se vuelven más quirúrgicas.</p>',
+          'm7.phase3':       '<h5>Fase 3 — Dominio</h5><p>Formular solicitudes técnicas precisas con contexto completo (registro de errores, entorno, versión). Crear hojas de resumen entre sesiones para preservar el contexto. La IA se convierte en un verdadero compañero de depuración, no en un generador de código ciego.</p>',
+          'm7.sec.proof':    'Prueba Concreta — el portfolio de mi hermano',
+          'm7.proof.lead':   'Después de diseñar este portfolio, pude <strong>reproducir rápida y fácilmente</strong> el trabajo para mi hermano Matthieu. Este segundo portfolio le permitió aligerar su CV sobrecargado moviendo el detalle de sus proyectos a una página dedicada. La velocidad de ejecución demuestra que las habilidades están genuinamente adquiridas y son transferibles.',
+          'm7.proof.item':   '<h5>Portfolio de Matthieu Balluais</h5><p><a href="https://kiritah-blip.github.io/Portfolio-Matthieu-Balluais/" target="_blank" rel="noopener" style="color:var(--blue);font-family:\'DM Mono\',monospace;font-size:0.75rem;">kiritah-blip.github.io/Portfolio-Matthieu-Balluais →</a></p>',
+          'm7.lbl.dev':      'Desarrollo y Código',
+          'm7.skills.dev':   '<span class="comp-tag">HTML5 / CSS3 / Vanilla JS</span><span class="comp-tag">React + Three.js (WebGL)</span><span class="comp-tag">CSS Houdini (@property)</span><span class="comp-tag">Animaciones avanzadas (requestAnimationFrame, lerp)</span><span class="comp-tag">Accesibilidad A11y</span>',
+          'm7.lbl.tools':    'Herramientas y Flujo de Trabajo',
+          'm7.skills.tools': '<span class="comp-tag">VS Code + Chrome DevTools</span><span class="comp-tag">Git / GitHub / Vercel (CI/CD)</span><span class="comp-tag">Spline (modelado 3D web)</span><span class="comp-tag">Base44 (estructura 3D generada por IA)</span><span class="comp-tag">Claude & Gemini (pair-programming con IA)</span>',
+          'm7.lbl.method':   'Método',
+          'm7.skills.method':'<span class="comp-tag">Ingeniería de prompts técnicos</span><span class="comp-tag">Depuración local vs. producción</span><span class="comp-tag">Pensamiento crítico UX / trade-offs de diseño</span><span class="comp-tag">Aprendizaje autodirigido (autodidacta)</span>',
+          'm7.conclusion':   'Este proyecto demuestra que es posible pasar, de forma completamente autónoma, de una herramienta sin código al dominio de frameworks modernos y un pipeline de producción profesional. Cada error resuelto, cada versión intermedia y cada intercambio con una IA ha sido una oportunidad de aprendizaje concreta. La capacidad de reproducir luego rápidamente este trabajo para mi hermano es la mejor prueba de que estas habilidades son reales, dominadas e inmediatamente reutilizables.'
         },
         zh: {
           /* 卡片编号 */
@@ -7057,6 +7563,17 @@
           'proj5.title':   '广播工作坊项目',
           'proj5.desc':    '与 Radio Campus Tours 99.5 合作，录制 15 分钟广播节目，涵盖脚本创作、反驳论证与现场录音。',
           'proj5.eyebrow': '项目 05 · 工作坊 · 2025–2026',
+          'proj6.card-num': '项目 06 · 个人',
+          'proj6.tag':     '网站',
+          'proj6.title':   '权力的游戏百科全书',
+          'proj6.desc':    '沉浸式多页网站：138个动态角色、3张维斯特洛互动地图、历史时间轴及通过GSAP同步的视频过渡效果。',
+          'proj6.btn':     '访问网站',
+          'proj7.card-num': '项目 07 · 个人',
+          'proj7.tag':     '网页开发',
+          'proj7.title':   '作品集设计',
+          'proj7.desc':    '从 Google Sites 到 React + Three.js：6个版本，零基础，100%自学。所学技能直接用于为兄弟创建作品集。',
+          'proj7.btn':     '兄弟的作品集 →',
+          'proj7.eyebrow': '项目 07 · 个人 · 2024–2026',
           /* 联系与页脚 */
           'contact.eyebrow':       '05 — 联系',
           'contact.title':         '联系我',
@@ -7185,7 +7702,60 @@
           'm4.ctx.p1':    '在比利时 <strong>Comet Traitements</strong> 实习，该公司是 Comet 集团旗下专注于破碎残余物（废金属、电子废弃物、报废车辆）物理处理与资源化利用的子公司。该企业致力于开发基于人工智能的工具，以实现金属分拣与识别的自动化。',
           'm4.ctx.p2':    '我的职责是参与这一研发项目——样品制备、计量学以及技术规格书的撰写——并与一家国际技术合作伙伴共同协作。',
           'm4.conf':      '出于与该企业签署的保密协议（NDA）相关的保密原因，我无法分享有关该项目的更多细节（方法、结果、文件、照片）。本页仅呈现实习背景及所培养技能的总体概述。',
-          'm4.skills':    '<span class="comp-tag">工业计量</span><span class="comp-tag">技术规格书撰写</span><span class="comp-tag">材料制备方案</span><span class="comp-tag">机器学习 / 标注</span><span class="comp-tag">国际合作</span><span class="comp-tag">工业 AI 视觉</span><span class="comp-tag">项目管理（甘特图/WBS）</span><span class="comp-tag">专业沟通</span><span class="comp-tag">英文技术写作</span>'
+          'm4.skills':    '<span class="comp-tag">工业计量</span><span class="comp-tag">技术规格书撰写</span><span class="comp-tag">材料制备方案</span><span class="comp-tag">机器学习 / 标注</span><span class="comp-tag">国际合作</span><span class="comp-tag">工业 AI 视觉</span><span class="comp-tag">项目管理（甘特图/WBS）</span><span class="comp-tag">专业沟通</span><span class="comp-tag">英文技术写作</span>',
+          /* ── 模态框 GOT (m6) 和 Portfolio (m7) ── */
+          'sec.project':     '项目介绍',
+          'sec.what-learned':'我学到的',
+          'proj6.eyebrow':   '项目 06 · 个人项目 · 2025–2026',
+          'proj6.tag-perso': '个人项目',
+          'm6.img.cap':      '沉浸式《权力的游戏》宇宙专题网站——部署于 Vercel',
+          'm6.sec.map':      '我的工作 — 地图制作（主要任务）',
+          'm6.sec.media':    '我的工作 — 媒体素材（图片与 GIF）',
+          'm6.ctx':          '以<strong>《权力的游戏》</strong>宇宙为主题的互动沉浸式百科全书，全站使用法语构建。网站共分 6 个栏目：首页、人物、龙、家族、世界与历史——每个栏目均有独特的动画效果和视频过渡。这是一个 100% 个人项目，从零开始开发并部署至 Vercel 生产环境。',
+          'm6.map1':         '<h5>在 GIMP 中制作区域蒙版</h5><p>为使网站能够识别地图上被点击的区域，我在 <strong>GIMP</strong> 中手动创建了 10 余个 PNG 蒙版文件——每个文件对应维斯特洛的一个区域，将相应领土的精确范围以黑色覆盖在 HBO 地图上。</p>',
+          'm6.map2':         '<h5>逐像素测量约 90 个地点坐标（地图 1）</h5><p>为在地图上精确定位维斯特洛的每座城堡、城市和兴趣点，我在 GIMP 中逐像素手动记录了<strong>近 90 个地点</strong>的 X/Y 坐标，并计算并应用了偏移公式（x−1, y+9）以完美对齐每个标记。</p>',
+          'm6.map3':         '<h5>扩展至地图 2 和地图 3</h5><p>同样的工作在另外两张地图上重复进行：维斯特洛 + 自由城市（82 个标记，偏移量 x+5/y+24）和维斯特洛 + 厄索斯全图（33 个区域，约 2000×1500 px）。合计手动记录并核验了<strong>超过 250 个坐标</strong>。</p>',
+          'm6.map4':         '<h5>为每个地点撰写描述与世界观内容</h5><p>对于地图上标注的每座城市、城堡或兴趣点，我撰写或整理了说明内容：确切名称（法语译名）、所在区域、归属家族及世界观信息。这是与技术工作同步进行的大量文档整理工作。</p>',
+          'm6.media1':       '<h5>搜寻与筛选视觉素材</h5><p>为网站上的 <strong>138 个人物与龙</strong>，我在专业网站（GOT 维基、粉丝数据库、HBO 档案）上搜索图片，识别合适场景，检查视觉效果的质量与清晰度，并仔细筛选。</p>',
+          'm6.media2':       '<h5>每个角色 4 至 5 个素材——照片与 GIF</h5><p>每个角色配有 <strong>4 至 5 个媒体素材</strong>：精选的静态照片和来自关键场景的动态 GIF。GIF 经过获取或制作，作为每张角色卡片加载时显示的默认图片。</p>',
+          'm6.media3':       '<h5>格式转换与优化</h5><p>所有媒体素材均针对网络进行了转换和优化：图片转换为 <strong>.webp</strong> 格式以减小文件大小，视频从 .mov 等重型格式压缩为轻量级的浏览器兼容格式。若不进行此步骤，网站线上加载需耗时数秒。</p>',
+          'm6.media4':       '<h5>每张视觉素材的裁切与整合</h5><p>素材整合后，部分人物面孔在卡片内（约 396×398 px）居中效果不佳。我通过 CSS <code>object-position</code> 属性调整了每张肖像的裁切，并重新排列照片顺序，确保始终以最佳视觉效果呈现。</p>',
+          'm6.lbl.tools':    '工具与技术',
+          'm6.skills.tools': '<span class="comp-tag">GIMP（PNG 蒙版、像素测量）</span><span class="comp-tag">媒体格式转换（webp、.mov）</span><span class="comp-tag">在线视觉素材搜索</span><span class="comp-tag">批量文件整理与命名</span><span class="comp-tag">Claude（Anthropic）—— AI 辅助开发</span><span class="comp-tag">Gemini（Google）—— 研究与内容</span>',
+          'm6.lbl.dev':      '开发与部署',
+          'm6.skills.dev':   '<span class="comp-tag">React + Vite + React Router</span><span class="comp-tag">Git（分支、缓存、冲突）</span><span class="comp-tag">CI/CD Vercel（本地 → 生产）</span><span class="comp-tag">本地与生产环境调试</span><span class="comp-tag">Web 性能优化</span>',
+          'm6.lbl.method':   '方法与自主性',
+          'm6.skills.method':'<span class="comp-tag">项目全流程管理</span><span class="comp-tag">自主排查与修复问题</span><span class="comp-tag">文档整理与上下文交接</span>',
+          'm6.conclusion':   '这个项目远不止于学习编程。基础性工作——手动测量数百个坐标、在 GIMP 中制作区域蒙版、为 138 个角色获取并转换数百个媒体文件——凝聚了大量的个人投入。正是这种内容严谨性与技术掌控力的结合，赋予了网站独特的深度与特色。',
+          'm6.link':         '<h5>在线网站</h5><p><a href="https://game-of-throne-k5jn.vercel.app/" target="_blank" rel="noopener" style="color:var(--blue);font-family:\'DM Mono\',monospace;font-size:0.75rem;">game-of-throne-k5jn.vercel.app →</a></p>',
+          'm7.img.cap':      '从 V1（Google Sites）到 V6（React + Three.js）——迭代设计，完全自学',
+          'm7.ctx':          '这个作品集本身就是一个独立的项目。从<strong>零编程基础</strong>出发，目标是打造一个能真实展现技术实力的在线作品——这是任何无代码工具都无法实现的。最终成果（V6，即您正在浏览的版本）是一个集 3D 动画、流畅过渡和高级无障碍访问于一体的交互式 Web 应用，完全从零编写。',
+          'm7.sec.traj':     '历程 — 从 V1 到 V6',
+          'm7.v1':           '<h5>摆脱无代码工具的束缚</h5><p>起点：一个 Google Sites 作品集。很快意识到其局限性（零定制化，无技术含量）。决定从零开始自学重写——Google Sites 版本被刻意保留，作为供评估者对比的参照。</p>',
+          'm7.v2-5':         '<h5>在试错中学习</h5><p>经历五个中间版本，逐步掌握代码逻辑、文件结构、CSS 定位和初步动画效果。每个版本都修正了上一版的不足。期间还在 Spline 上为首页尝试了<strong>交互式 3D 键盘</strong>——后来放弃：过于"电子游戏"风格的渲染效果与工程作品集所应有的简洁感相悖。这一转变体现了批判性的设计审美。</p>',
+          'm7.v6':           '<h5>技术的集大成之作</h5><p>迁移至 React + Three.js。最终视觉风格（石板色背景 <code>#181c22</code>、金色点缀、Cinzel / Lora / DM Mono 字体组合）。集成"The Gate"——由 5×4 瓷砖组成的 3D 面板，点击后爆炸散开——以及用 Base44 生成的交互式二十面体球体。</p>',
+          'm7.sec.learn':    '我学会了做什么',
+          'm7.learn1':       '<h5>从零开始设计视觉标识</h5><p>选择调色板（3 次尝试后确定深石板色背景）、字体搭配（Cinzel 用于标题、Lora 用于正文、DM Mono 用于数据），实现全局深色/浅色模式，以及随页面滚动在各章节间切换的色彩渐变——使用 CSS Houdini <code>@property</code> API。</p>',
+          'm7.learn2':       '<h5>掌握专业开发流水线</h5><p>完整流程管理：VS Code 本地编码 → Git 版本控制 → GitHub 仓库 → 每次 push 自动部署至 Vercel。排查本地不可见的生产环境问题（Linux 大小写敏感、Git 缓存冲突、高分辨率屏幕上的溢出问题）。</p>',
+          'm7.learn3':       '<h5>编写高级动画效果</h5><p>首页飘落树叶动画、与动态计数器同步的技能进度条、4 状态上下文游标、带动画效果的磁性 SVG 焦点环、与滚动联动的时间轴。在 <strong>Chrome DevTools</strong> 中实时测试与调优，逐帧验证时序和性能。</p>',
+          'm7.learn4':       '<h5>集成交互式 3D（Three.js + Spline + Base44）</h5><p>使用 <strong>Base44</strong> 生成二十面体球体的算法结构；借助 <strong>Spline</strong> 进行 3D 建模与悬停状态管理；通过 <code>THREE.Raycaster()</code> 实现"The Gate"的交互，并用防抖 resize 处理器修复 DPI 问题。</p>',
+          'm7.learn5':       '<h5>精英级无障碍访问（A11y）</h5><p>实现 <code>prefers-reduced-motion</code>、<code>prefers-contrast: more</code>（禁用 SVG 胶片颗粒、将动画渐变替换为纯色）、<code>@media print</code> 样式管理，以及配有专用焦点环的完整键盘导航。</p>',
+          'm7.learn6':       '<h5>将 AI 作为真正的工作工具</h5><p>学习<strong>提示词工程</strong>：学会隔离有问题的代码块、精确描述 3D 渲染错误或异步行为，以及读懂构建错误日志。与 <strong>Claude</strong> 和 <strong>Gemini</strong> 的交流逐渐变得更加精准——减少了反复措辞的次数，诊断更直接，解决方案更有针对性。</p>',
+          'm7.sec.evol':     '我们交流方式的进化',
+          'm7.evol.lead':    '项目伊始，我的请求往往很模糊：<em>"它不工作"</em>或<em>"重做这个章节"</em>。随着时间推移，方式逐渐演变：',
+          'm7.phase1':       '<h5>阶段 1 — 探索期</h5><p>请求宽泛，修改盲目。AI 无精确定向地大段重写代码。大量来回沟通。</p>',
+          'm7.phase2':       '<h5>阶段 2 — 结构化期</h5><p>学会隔离问题：只粘贴相关的 CSS 或 JS 代码块，描述预期行为与实际行为的差异。AI 的回复愈加精准。</p>',
+          'm7.phase3':       '<h5>阶段 3 — 成熟期</h5><p>以完整上下文（错误日志、环境、版本）提出精确的技术需求，在会话之间建立摘要以延续上下文。AI 真正成为调试伙伴，而非盲目的代码生成器。</p>',
+          'm7.sec.proof':    '具体证明 — 我弟弟的作品集',
+          'm7.proof.lead':   '完成这个作品集后，我得以<strong>快速轻松地</strong>为弟弟 Matthieu 复刻了一套。这个第二份作品集让他将项目详情从已过载的简历中剥离，移至一个独立页面。执行速度本身就证明了技能是真正习得且可迁移的。',
+          'm7.proof.item':   '<h5>Matthieu Balluais 的作品集</h5><p><a href="https://kiritah-blip.github.io/Portfolio-Matthieu-Balluais/" target="_blank" rel="noopener" style="color:var(--blue);font-family:\'DM Mono\',monospace;font-size:0.75rem;">kiritah-blip.github.io/Portfolio-Matthieu-Balluais →</a></p>',
+          'm7.lbl.dev':      '开发与代码',
+          'm7.skills.dev':   '<span class="comp-tag">HTML5 / CSS3 / 原生 JS</span><span class="comp-tag">React + Three.js（WebGL）</span><span class="comp-tag">CSS Houdini（@property）</span><span class="comp-tag">高级动画（requestAnimationFrame、lerp）</span><span class="comp-tag">无障碍访问 A11y</span>',
+          'm7.lbl.tools':    '工具与工作流',
+          'm7.skills.tools': '<span class="comp-tag">VS Code + Chrome DevTools</span><span class="comp-tag">Git / GitHub / Vercel（CI/CD）</span><span class="comp-tag">Spline（3D Web 建模）</span><span class="comp-tag">Base44（AI 生成的 3D 结构）</span><span class="comp-tag">Claude & Gemini（AI 配对编程）</span>',
+          'm7.lbl.method':   '方法论',
+          'm7.skills.method':'<span class="comp-tag">技术提示词工程</span><span class="comp-tag">本地与生产环境调试</span><span class="comp-tag">UX 批判性思维 / 设计取舍</span><span class="comp-tag">自主学习（自学成才）</span>',
+          'm7.conclusion':   '这个项目证明了：完全依靠自身，从无代码工具出发，到掌握现代框架和专业生产流水线，是完全可以实现的。每一个被解决的 Bug、每一个中间版本、每一次与 AI 的交流，都是具体的学习机会。能够随后为弟弟快速复刻这份工作，是这些技能真实存在、已被掌握且可即时复用的最好证明。'
         },
         ja: {
           /* カード番号 */
@@ -7283,6 +7853,17 @@
           'proj5.title':   'ラジオワークショッププロジェクト',
           'proj5.desc':    'Radio Campus Tours 99.5 との提携による15分間の放送。スクリプト作成、反論構築、ライブスタジオ録音。',
           'proj5.eyebrow': 'プロジェクト 05 · ワークショップ · 2025–2026',
+          'proj6.card-num': 'プロジェクト 06 · 個人',
+          'proj6.tag':     'ウェブサイト',
+          'proj6.title':   'ゲーム・オブ・スローンズ百科事典',
+          'proj6.desc':    'マルチページ没入型ウェブサイト：138人のアニメーションキャラクター、3つのウェステロス・インタラクティブマップ、歴史年表、GASPで同期した動画トランジション。',
+          'proj6.btn':     'サイトを見る',
+          'proj7.card-num': 'プロジェクト 07 · 個人',
+          'proj7.tag':     'ウェブ開発',
+          'proj7.title':   'ポートフォリオ制作',
+          'proj7.desc':    'Google Sitesからreact + Three.jsへ：6バージョン、事前知識ゼロ、100%独学。習得したスキルで弟のポートフォリオも制作。',
+          'proj7.btn':     '弟のポートフォリオ →',
+          'proj7.eyebrow': 'プロジェクト 07 · 個人 · 2024–2026',
           /* 連絡先・フッター */
           'contact.eyebrow':       '05 — 連絡先',
           'contact.title':         'お問い合わせ',
@@ -7411,7 +7992,60 @@
           'm4.ctx.p1':    'ベルギーの<strong>Comet Traitements</strong>でのインターンシップ。同社はCometグループの子会社で、破砕残渣（スクラップメタル、WEEE、使用済み自動車）の物理処理と再生を専門としています。同社は金属の選別と認識を自動化するAIツールの開発に取り組んでいます。',
           'm4.ctx.p2':    '私の役割は、国際的な技術パートナーと協力しながら、このR&Dプロジェクトに貢献することでした——サンプル調製、計測、技術仕様書の作成。',
           'm4.conf':      '企業と締結した秘密保持契約（NDA）に基づき、本プロジェクトに関する詳細情報（手法、結果、資料、写真）を公開することはできません。このページでは、インターンシップの背景と習得したスキルについて、一般的な概要のみを紹介しています。',
-          'm4.skills':    '<span class="comp-tag">産業計測学</span><span class="comp-tag">仕様書作成</span><span class="comp-tag">材料調製プロトコル</span><span class="comp-tag">機械学習 / ラベリング</span><span class="comp-tag">国際協力</span><span class="comp-tag">産業AIビジョン</span><span class="comp-tag">プロジェクト管理（ガントチャート/WBS）</span><span class="comp-tag">プロフェッショナルコミュニケーション</span><span class="comp-tag">英語技術ライティング</span>'
+          'm4.skills':    '<span class="comp-tag">産業計測学</span><span class="comp-tag">仕様書作成</span><span class="comp-tag">材料調製プロトコル</span><span class="comp-tag">機械学習 / ラベリング</span><span class="comp-tag">国際協力</span><span class="comp-tag">産業AIビジョン</span><span class="comp-tag">プロジェクト管理（ガントチャート/WBS）</span><span class="comp-tag">プロフェッショナルコミュニケーション</span><span class="comp-tag">英語技術ライティング</span>',
+          /* ── モーダル GOT (m6) & Portfolio (m7) ── */
+          'sec.project':     'プロジェクト概要',
+          'sec.what-learned':'学んだこと',
+          'proj6.eyebrow':   'プロジェクト 06 · 個人 · 2025–2026',
+          'proj6.tag-perso': '個人プロジェクト',
+          'm6.img.cap':      'ゲーム・オブ・スローンズの世界に捧げる没入型ウェブサイト — Vercel にデプロイ済み',
+          'm6.sec.map':      '私の作業 — 地図制作（メインタスク）',
+          'm6.sec.media':    '私の作業 — メディア素材（写真・GIF）',
+          'm6.ctx':          '<strong>ゲーム・オブ・スローンズ</strong>の世界をテーマにした、フランス語で構築されたインタラクティブかつ没入型の百科事典。サイトは6つのセクションで構成されています：ホーム、キャラクター、ドラゴン、家門、世界、歴史 — それぞれ独自のアニメーションと動画トランジションを備えています。これはゼロからVercelへの本番デプロイまで、100%個人で手がけたプロジェクトです。',
+          'm6.map1':         '<h5>GIMPでのリージョンマスク作成</h5><p>サイトが地図上のクリックされた地域を検出できるようにするため、<strong>GIMP</strong>で10枚以上のPNGマスクファイルを手動作成しました——ウェステロスの各地域に1枚ずつ。各マスクは、HBOの地図上に対応する領土の正確な範囲を黒で塗りつぶします。</p>',
+          'm6.map2':         '<h5>約90か所のピクセル単位の座標計測（地図1）</h5><p>ウェステロスのすべての城、都市、興味地点を位置づけるため、GIMPでピクセル単位に計測しながら<strong>約90か所</strong>のX/Y座標を手動で記録しました。その後、オフセット計算式（x−1, y+9）を算出・適用し、各マーカーを地図上に完全に整列させました。</p>',
+          'm6.map3':         '<h5>地図2・3への拡張</h5><p>同じ作業をさらに2枚の地図で繰り返しました：ウェステロス＋自由都市（82マーカー、オフセットx+5/y+24）とウェステロス＋エッソス全域（33地域、約2000×1500 px）。合計で<strong>250以上の座標</strong>を手動で記録・検証しました。</p>',
+          'm6.map4':         '<h5>各地点の説明とロア情報の整備</h5><p>地図に配置した各都市、城、興味地点について、説明コンテンツを執筆または調査しました：正確な名称（フランス語訳）、地域、関連する家門、ロア情報。技術作業と並行して行った、膨大なドキュメント整理作業です。</p>',
+          'm6.media1':       '<h5>ビジュアル素材の調査と選定</h5><p>サイト上の<strong>138人のキャラクターとドラゴン</strong>それぞれについて、専門サイト（GOTウィキ、ファンデータベース、HBOアーカイブ）で画像を検索しました。適切なシーンを特定し、ビジュアルの品質と視認性を確認し、慎重に選定する作業が必要でした。</p>',
+          'm6.media2':       '<h5>キャラクターごとに4〜5点の素材——写真・GIF</h5><p>各キャラクターには<strong>4〜5点のメディア素材</strong>があります：厳選した静止画と、重要なシーンのアニメーションGIF。GIFは取得または制作され、各キャラクターカード読み込み時のデフォルト画像として使用されます。</p>',
+          'm6.media3':       '<h5>フォーマット変換と最適化</h5><p>すべてのメディアはウェブ向けに変換・最適化しました：画像はファイルサイズ削減のため<strong>.webp</strong>形式に変換し、動画は重い形式（.mov）から軽量なブラウザ互換形式に圧縮しました。この工程なしでは、サイトのオンライン読み込みに数秒かかっていました。</p>',
+          'm6.media4':       '<h5>各ビジュアルのトリミングと整合</h5><p>統合後、一部のカード内（約396×398 px）で顔の中心がずれていました。CSS <code>object-position</code> プロパティで各ポートレートのトリミングを調整し、常に最良のビジュアルが先頭になるよう写真の順序を整理しました。</p>',
+          'm6.lbl.tools':    'ツールと技術',
+          'm6.skills.tools': '<span class="comp-tag">GIMP（PNGマスク、ピクセル計測）</span><span class="comp-tag">メディア形式変換（webp、.mov）</span><span class="comp-tag">オンラインビジュアル素材調査</span><span class="comp-tag">大量ファイル整理と命名</span><span class="comp-tag">Claude（Anthropic）— AI開発支援</span><span class="comp-tag">Gemini（Google）— 調査・コンテンツ</span>',
+          'm6.lbl.dev':      '開発とデプロイ',
+          'm6.skills.dev':   '<span class="comp-tag">React + Vite + React Router</span><span class="comp-tag">Git（ブランチ、キャッシュ、コンフリクト）</span><span class="comp-tag">CI/CD Vercel（ローカル → 本番）</span><span class="comp-tag">ローカルvs本番のデバッグ</span><span class="comp-tag">Webパフォーマンス最適化</span>',
+          'm6.lbl.method':   'メソッドと自律性',
+          'm6.skills.method':'<span class="comp-tag">プロジェクト全体管理</span><span class="comp-tag">自律的なバグ修正</span><span class="comp-tag">ドキュメント作成とコンテキスト引き継ぎ</span>',
+          'm6.conclusion':   'このプロジェクトは、単にコードを学ぶことをはるかに超えています。基礎的な作業——数百の座標を手動計測し、GIMPでリージョンマスクを作成し、138キャラクター分の数百のメディアファイルを調達・変換する——には、相当な個人的な投資が伴います。このコンテンツへの厳密さと技術的な習熟の組み合わせが、サイトに深みと独自の特徴をもたらしています。',
+          'm6.link':         '<h5>公開サイト</h5><p><a href="https://game-of-throne-k5jn.vercel.app/" target="_blank" rel="noopener" style="color:var(--blue);font-family:\'DM Mono\',monospace;font-size:0.75rem;">game-of-throne-k5jn.vercel.app →</a></p>',
+          'm7.img.cap':      'V1（Google Sites）からV6（React + Three.js）へ — 反復的なデザイン、完全な独学',
+          'm7.ctx':          'このポートフォリオ自体が一つの独立したプロジェクトです。<strong>プログラミング知識ゼロ</strong>からスタートし、本物の技術力を反映したオンラインプレゼンスを作ることが目標でした——ノーコードツールでは実現不可能なものです。最終成果物（今まさにご覧のV6）は、3Dアニメーション、スムーズなトランジション、高度なアクセシビリティを組み合わせたインタラクティブWebアプリで、すべてゼロから構築されています。',
+          'm7.sec.traj':     '歩み — V1からV6へ',
+          'm7.v1':           '<h5>ノーコードからの脱却</h5><p>出発点：Google Sitesのポートフォリオ。その限界（カスタマイズ性ゼロ、技術的価値なし）にすぐ気づきました。独学でゼロから再構築することを決意——Google Sites版は評価者との比較対象として意図的に残されています。</p>',
+          'm7.v2-5':         '<h5>試行錯誤による学習</h5><p>コードロジック、ファイル構造、CSSレイアウト、初歩的なアニメーションを習得するための5つの中間バージョン。各バージョンが前のバージョンの問題を修正します。Splineでホームページ用の<strong>インタラクティブな3Dキーボード</strong>も試みましたが、後に断念。過度に「ゲーム」的なレンダリングがエンジニアリングポートフォリオに求められる簡潔さと相容れなかったためです。この方向転換がデザイン的センスの証明となっています。</p>',
+          'm7.v6':           '<h5>技術的な集大成</h5><p>React + Three.jsへの移行。最終的なビジュアルアイデンティティ（スレートバックグラウンド <code>#181c22</code>、ゴールドアクセント、Cinzel / Lora / DM Monoフォント）。「The Gate」の統合——クリックで爆発する5×4タイルの3Dパネル——と、Base44で生成されたインタラクティブな正二十面体スフィア。</p>',
+          'm7.sec.learn':    '学んでできるようになったこと',
+          'm7.learn1':       '<h5>ゼロからビジュアルアイデンティティをデザインする</h5><p>カラーパレットの選択（ダークスレート背景に落ち着くまで3回の試み）、タイポグラフィの選定（見出しにCinzel、本文にLora、データにDM Mono）、スクロールに応じてセクション間で変化するクロマティックアクセントとグローバルダーク/ライトモードの実装——CSS Houdini <code>@property</code> APIを使用。</p>',
+          'm7.learn2':       '<h5>プロフェッショナルな開発パイプラインの習得</h5><p>フルサイクル管理：VS Codeでのローカルコーディング → Gitでのバージョン管理 → GitHubリポジトリ → プッシュごとにVercelへ自動デプロイ。ローカルでは見えない本番バグの解決（Linuxの大文字小文字区別、Gitキャッシュの競合、高DPI画面でのオーバーフロー）。</p>',
+          'm7.learn3':       '<h5>高度なアニメーションのコーディング</h5><p>ホームページの飛葉アニメーション、動的カウンターと同期したスキルバー、4状態コンテキストカーソル、アニメーション付き磁気SVGフォーカスリング、スクロール連動タイムライン。<strong>Chrome DevTools</strong>でライブにテスト・調整し、タイミングとフレームごとのパフォーマンスを検証。</p>',
+          'm7.learn4':       '<h5>インタラクティブ3Dの統合（Three.js + Spline + Base44）</h5><p>正二十面体スフィアのアルゴリズム構造生成に<strong>Base44</strong>を使用。<strong>Spline</strong>で3Dモデリングとホバー状態管理を探求。<code>THREE.Raycaster()</code>を使ったThree.jsの「The Gate」のインタラクション統合と、DPI問題を修正するデバウンスされたリサイズハンドラー。</p>',
+          'm7.learn5':       '<h5>エリートアクセシビリティ（A11y）</h5><p><code>prefers-reduced-motion</code>、<code>prefers-contrast: more</code>（SVGフィルムグレインの無効化、アニメーショングラデーションをソリッドカラーに置換）、<code>@media print</code>スタイル管理、専用フォーカスリングによる完全なキーボードナビゲーションの実装。</p>',
+          'm7.learn6':       '<h5>本物の作業ツールとしてAIを活用する</h5><p><strong>プロンプトエンジニアリング</strong>の習得：問題のあるコードブロックを切り出す方法、3Dレンダリングバグや非同期動作を正確に記述する方法、ビルドエラーログを読んで解釈する方法を学びました。<strong>Claude</strong>と<strong>Gemini</strong>とのやり取りは次第に精度が上がりました——言い直しが減り、診断がより直接的になり、解決策がより的を射たものになりました。</p>',
+          'm7.sec.evol':     'やり取りの進化',
+          'm7.evol.lead':    'プロジェクト開始当初は曖昧なリクエストばかりでした：<em>「動かない」</em>や<em>「セクションをやり直して」</em>。時間とともにアプローチが変化していきました：',
+          'm7.phase1':       '<h5>フェーズ1 — 探索期</h5><p>広範なリクエスト、手探りの修正。AIは精確なターゲティングなしに大きなブロックを書き直します。多くの往復が発生。</p>',
+          'm7.phase2':       '<h5>フェーズ2 — 構造化期</h5><p>問題の切り出しを学ぶ：関連するCSSやJSブロックだけをコピーし、期待する動作と実際の動作を説明する。レスポンスがより外科的になっていきます。</p>',
+          'm7.phase3':       '<h5>フェーズ3 — 習熟期</h5><p>完全なコンテキスト（エラーログ、環境、バージョン）を含む精確な技術的リクエストを作成。セッション間の引き継ぎメモを作成してコンテキストを保持。AIは盲目的なコード生成器ではなく、本物のデバッグパートナーになります。</p>',
+          'm7.sec.proof':    '具体的な証明 — 弟のポートフォリオ',
+          'm7.proof.lead':   'このポートフォリオを設計した後、弟のMatthieuのために<strong>すばやく簡単に</strong>同じ作業を再現することができました。この2つ目のポートフォリオにより、彼は過密なCVから各プロジェクトの詳細を専用ページに移すことができました。実行の速さは、スキルが本当に習得されており、移転可能であることの証明です。',
+          'm7.proof.item':   '<h5>Matthieu Balluaisのポートフォリオ</h5><p><a href="https://kiritah-blip.github.io/Portfolio-Matthieu-Balluais/" target="_blank" rel="noopener" style="color:var(--blue);font-family:\'DM Mono\',monospace;font-size:0.75rem;">kiritah-blip.github.io/Portfolio-Matthieu-Balluais →</a></p>',
+          'm7.lbl.dev':      '開発とコード',
+          'm7.skills.dev':   '<span class="comp-tag">HTML5 / CSS3 / バニラJS</span><span class="comp-tag">React + Three.js（WebGL）</span><span class="comp-tag">CSS Houdini（@property）</span><span class="comp-tag">高度なアニメーション（requestAnimationFrame、lerp）</span><span class="comp-tag">A11yアクセシビリティ</span>',
+          'm7.lbl.tools':    'ツールとワークフロー',
+          'm7.skills.tools': '<span class="comp-tag">VS Code + Chrome DevTools</span><span class="comp-tag">Git / GitHub / Vercel（CI/CD）</span><span class="comp-tag">Spline（3D Webモデリング）</span><span class="comp-tag">Base44（AI生成の3D構造）</span><span class="comp-tag">Claude & Gemini（AIペアプログラミング）</span>',
+          'm7.lbl.method':   'メソッド',
+          'm7.skills.method':'<span class="comp-tag">技術的プロンプトエンジニアリング</span><span class="comp-tag">ローカルvs本番デバッグ</span><span class="comp-tag">UXクリティカルシンキング / デザイントレードオフ</span><span class="comp-tag">自己主導学習（独学）</span>',
+          'm7.conclusion':   'このプロジェクトは、ノーコードツールから完全に自律的にモダンフレームワークとプロフェッショナルな本番パイプラインの習得へと移行することが可能であることを実証しています。修正したすべてのバグ、すべての中間バージョン、AIとのすべてのやり取りが、具体的な学習の機会となりました。その後すぐに弟のためにこの作業を再現できたことが、これらのスキルが本物であり、習得済みで、即座に再利用可能であることの最良の証拠です。'
         }
       };
 
@@ -7726,6 +8360,68 @@
     })();
   </script>
 
+  <!-- ── Boutons carousel : hover JS + clic → modal ── -->
+  <script>
+    (function () {
+      'use strict';
+      var scene = document.querySelector('.carousel-scene');
+      if (!scene) return;
+
+      /* 1. Hover JS : contourne les instabilités de CSS :hover en preserve-3d. */
+      scene.querySelectorAll('.btn-more').forEach(function (btn) {
+        btn.addEventListener('mouseenter', function () { btn.classList.add('is-hovered-btn'); });
+        btn.addEventListener('mouseleave', function () { btn.classList.remove('is-hovered-btn'); });
+      });
+
+      /* 2. Clic → modal via capture sur la scene (cartes où le hit-testing 3D fonctionne). */
+      scene.addEventListener('click', function (e) {
+        var btn = e.target && e.target.closest
+          ? e.target.closest('.btn-more[onclick]')
+          : null;
+        if (!btn) return;
+        var card = btn.closest('.carousel-item');
+        if (!card) return;
+        var m = (btn.getAttribute('onclick') || '').match(/openModal\('([^']+)'\)/);
+        if (!m) return;
+        var id = m[1];
+        if (card.classList.contains('c-active')) {
+          e.stopPropagation();
+          if (typeof openModal === 'function') openModal(id);
+        } else {
+          setTimeout(function () { if (typeof openModal === 'function') openModal(id); }, 750);
+        }
+      }, true);
+
+      /* 3. Fix Portfolio (data-index="5") — bug Chrome preserve-3d
+            En position c-active (rotateY=0°), le ray-casting 3D de Chrome ne détecte
+            pas le bouton : e.target vaut carousel-scene au lieu du bouton.
+            Solution : tracking curseur via getBoundingClientRect (position visuelle réelle,
+            indépendante du hit-testing 3D). */
+      var btnP = document.querySelector('.carousel-item[data-index="5"] .btn-more');
+      var cardP = document.querySelector('.carousel-item[data-index="5"]');
+      if (btnP && cardP) {
+        var pHovered = false;
+
+        window.addEventListener('mousemove', function (e) {
+          if (cardP.classList.contains('c-offscreen')) {
+            if (pHovered) { pHovered = false; btnP.classList.remove('is-hovered-btn'); }
+            return;
+          }
+          var rect = btnP.getBoundingClientRect();
+          var over = (e.clientX >= rect.left && e.clientX <= rect.right &&
+                      e.clientY >= rect.top  && e.clientY <= rect.bottom);
+          if (over === pHovered) return;
+          pHovered = over;
+          btnP.classList.toggle('is-hovered-btn', over);
+        }, { passive: true });
+
+        document.addEventListener('click', function () {
+          if (pHovered && typeof openModal === 'function') openModal('portfolio');
+        }, true);
+      }
+    })();
+  </script>
+
   <!-- ── Dark / Light mode toggle ── -->
   <script>
     (function () {
@@ -7784,6 +8480,7 @@
                  'ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
       var idx  = 0;
       var egg  = document.getElementById('konami-egg');
+      if (!egg) return;  /* élément absent → désactive l'easter egg silencieusement */
       var hide = null;
 
       function trigger() {
